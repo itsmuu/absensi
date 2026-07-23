@@ -5,24 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Hadirmu - Absensi Online XI TKJ</title>
   
-  <!-- Menggunakan Font Modern Poppins dari Google Fonts -->
+  <!-- Font Poppins -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
-    /* Global Styles */
     :root {
-      --primary-color: #4a90e2; /* Biru Modern */
+      --primary-color: #4a90e2;
       --secondary-color: #f4f7f6;
-      --text-color: #333;
+      --text-color: #2c3e50;
       --bg-color: #e0e8f0;
       
-      /* Warna Status */
-      --color-h: #2ecc71; /* Hadir - Hijau */
-      --color-i: #f1c40f; /* Izin - Kuning */
-      --color-s: #3498db; /* Sakit - Biru */
-      --color-a: #e74c3c; /* Alpha - Merah */
+      --color-h: #2ecc71;
+      --color-i: #f1c40f;
+      --color-s: #3498db;
+      --color-a: #e74c3c;
     }
 
     * { box-sizing: border-box; }
@@ -36,199 +34,260 @@
       display: flex;
       justify-content: center;
       min-height: 100vh;
-      /* Background Gradient Halus */
       background-image: 
-        radial-gradient(at 10% 20%, rgba(74, 144, 226, 0.1) 0px, transparent 50%),
-        radial-gradient(at 90% 80%, rgba(46, 204, 113, 0.05) 0px, transparent 50%);
+        radial-gradient(at 10% 20%, rgba(74, 144, 226, 0.12) 0px, transparent 50%),
+        radial-gradient(at 90% 80%, rgba(46, 204, 113, 0.08) 0px, transparent 50%);
     }
 
-    /* Container Utama - Efek Glassmorphism */
+    /* Container Utama */
     .container { 
       width: 100%;
-      max-width: 550px; 
+      max-width: 520px; 
       margin: 20px; 
       padding: 30px; 
-      background: rgba(255, 255, 255, 0.7); 
-      border-radius: 20px; 
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+      background: rgba(255, 255, 255, 0.75); 
+      border-radius: 24px; 
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     }
 
-    /* Header */
     .header-app {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
     
     .header-app h2 { 
       margin: 0; 
       font-weight: 600; 
-      color: #2c3e50;
-      font-size: 24px;
+      color: var(--text-color);
+      font-size: 26px;
     }
     
     .header-app p {
-      margin: 5px 0 0;
+      margin: 4px 0 0;
       font-weight: 300;
-      font-size: 14px;
+      font-size: 13px;
       color: #7f8c8d;
     }
 
-    /* Input & Select */
     label { 
       font-weight: 600; 
-      font-size: 14px; 
+      font-size: 13px; 
       color: #555;
       display: block;
       margin-bottom: 8px;
     }
 
-    select { 
-      width: 100%; 
-      padding: 12px 15px; 
-      border-radius: 12px; 
-      border: 2px solid rgba(0,0,0,0.05); 
-      background-color: rgba(255,255,255,0.8);
-      font-size: 16px; 
-      font-family: 'Poppins', sans-serif;
+    /* ---------------------------------------------------- */
+    /* CUSTOM DROPDOWN MODERN & ROUNDED (THE NEW LOOK) */
+    /* ---------------------------------------------------- */
+    .custom-select-wrapper {
+      position: relative;
+      user-select: none;
+    }
+
+    .custom-select-trigger {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 16px;
+      border: 2px solid rgba(0,0,0,0.04);
+      font-size: 15px;
+      font-weight: 500;
+      color: #333;
+      cursor: pointer;
       transition: all 0.3s ease;
-      appearance: none; /* Hilangkan panah default */
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 15px center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
     }
 
-    select:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+    .custom-select-trigger:hover {
+      background: #ffffff;
+      border-color: rgba(74, 144, 226, 0.3);
     }
 
-    /* Pembatas Daftar Siswa */
-    #daftarSiswa { margin-top: 30px; }
+    .custom-select-trigger .arrow {
+      width: 10px;
+      height: 10px;
+      border-right: 2px solid #666;
+      border-bottom: 2px solid #666;
+      transform: rotate(45deg);
+      transition: transform 0.3s ease;
+      margin-bottom: 3px;
+    }
+
+    .custom-select-wrapper.open .custom-select-trigger .arrow {
+      transform: rotate(-135deg);
+      margin-bottom: -3px;
+    }
+
+    /* Menu Pilihan Kelas (Dropdown Menu) */
+    .custom-options {
+      position: absolute;
+      display: block;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      border: 1px solid rgba(0,0,0,0.05);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      margin-top: 8px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(-10px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+      max-height: 250px;
+      overflow-y: auto;
+      padding: 6px;
+    }
+
+    .custom-select-wrapper.open .custom-options {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: all;
+      transform: translateY(0);
+    }
+
+    .custom-option {
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #444;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+      margin-bottom: 2px;
+    }
+
+    .custom-option:hover {
+      background-color: rgba(74, 144, 226, 0.1);
+      color: var(--primary-color);
+      padding-left: 20px; /* Efek bergeser halus saat di-hover */
+    }
+
+    .custom-option.selected {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    /* Scrollbar halus untuk dropdown */
+    .custom-options::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-options::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.1);
+      border-radius: 10px;
+    }
+
+    /* ---------------------------------------------------- */
+
+    #daftarSiswa { margin-top: 25px; }
 
     .daftar-header {
       font-weight: 600;
-      color: #2c3e50;
+      color: var(--text-color);
       border-bottom: 2px solid rgba(0,0,0,0.05);
       padding-bottom: 10px;
       margin-bottom: 15px;
-      font-size: 18px;
+      font-size: 16px;
     }
 
-    /* ---------------------------------------------------- */
-    /* SESI INPUT KEHADIRAN (THE BEAUTY PART) */
-    /* ---------------------------------------------------- */
-    
     .siswa-row { 
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
-      padding: 15px; 
-      background: rgba(255,255,255,0.5);
-      border-radius: 15px;
+      padding: 12px 15px; 
+      background: rgba(255,255,255,0.6);
+      border-radius: 14px;
       margin-bottom: 10px;
       transition: all 0.2s ease;
-      border: 1px solid transparent;
+      border: 1px solid rgba(255, 255, 255, 0.5);
     }
 
     .siswa-row:hover {
-      background: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.95);
       transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
     }
 
     .nama-siswa-wrapper {
       flex: 1;
-      padding-right: 15px;
+      padding-right: 10px;
     }
 
     .nama-siswa-text { 
-      font-size: 15px; 
-      font-weight: 400;
+      font-size: 14px; 
+      font-weight: 500;
       color: #333;
     }
 
-    /* Group Tombol Status */
     .status-group { 
       display: flex;
-      gap: 8px; /* Jarak antar tombol H S I A */
+      gap: 6px; 
     }
 
-    /* Sembunyikan Radio Button Asli */
-    .status-group input[type="radio"] {
-      display: none;
-    }
+    .status-group input[type="radio"] { display: none; }
 
-    /* Gaya Label sebagai Tombol Modern */
     .status-group label {
       display: flex;
       justify-content: center;
       align-items: center;
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       border-radius: 10px;
       margin: 0;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
       border: 2px solid transparent;
-      color: #7f8c8d; /* Warna teks awal */
-      background-color: #edf2f4; /* Warna bg awal */
+      color: #888; 
+      background-color: #edf2f4; 
     }
 
-    /* Efek Hover di Label */
-    .status-group label:hover {
-      transform: scale(1.1);
-    }
+    .status-group label:hover { transform: scale(1.08); }
 
-    /* -------------------------------------- */
-    /* Logika Warna Tombol saat DIPILIH (Checked) */
-    /* -------------------------------------- */
-
-    /* Hadir (H) */
     .status-group input[value="Hadir"]:checked + label {
       background-color: rgba(46, 204, 113, 0.15);
       color: var(--color-h);
       border-color: var(--color-h);
     }
 
-    /* Izin (I) */
     .status-group input[value="Izin"]:checked + label {
       background-color: rgba(241, 196, 15, 0.15);
       color: var(--color-i);
       border-color: var(--color-i);
     }
 
-    /* Sakit (S) */
     .status-group input[value="Sakit"]:checked + label {
       background-color: rgba(52, 152, 219, 0.15);
       color: var(--color-s);
       border-color: var(--color-s);
     }
 
-    /* Alpha (A) */
     .status-group input[value="Alpha"]:checked + label {
       background-color: rgba(231, 76, 60, 0.15);
       color: var(--color-a);
       border-color: var(--color-a);
     }
 
-    /* -------------------------------------- */
-
-    /* Tombol Simpan Besar */
     .btn-simpan { 
       width: 100%; 
-      padding: 15px; 
-      margin-top: 30px; 
-      border-radius: 12px; 
+      padding: 14px; 
+      margin-top: 25px; 
+      border-radius: 14px; 
       background: linear-gradient(135deg, var(--primary-color) 0%, #357abd 100%);
       color: white; 
       font-weight: 600; 
-      font-size: 16px;
+      font-size: 15px;
       font-family: 'Poppins', sans-serif;
       border: none; 
       cursor: pointer; 
@@ -240,12 +299,7 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
     }
-    
-    .btn-simpan:active {
-      transform: translateY(1px);
-    }
 
-    /* Loading Overlay */
     #loading { 
       display: none; 
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -255,61 +309,62 @@
       justify-content: center;
       align-items: center;
       flex-direction: column;
-      border-radius: 20px;
     }
     
     .spinner {
       border: 4px solid rgba(0,0,0,0.1);
       border-left-color: var(--primary-color);
       border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 10px;
+      width: 32px;
+      height: 32px;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 12px;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Responsive Adjustment (HP Kecil) */
     @media (max-width: 400px) {
       .container { padding: 20px; margin: 10px; }
-      .nama-siswa-text { font-size: 14px; }
-      .status-group { gap: 4px; }
+      .nama-siswa-text { font-size: 13px; }
       .status-group label { width: 32px; height: 32px; font-size: 12px; }
     }
   </style>
 </head>
 <body>
 
-<!-- Loading Overlay -->
 <div id="loading">
   <div class="spinner"></div>
-  <div style="font-weight:600; color:var(--primary-color)">Memproses...</div>
+  <div style="font-weight:600; color:var(--primary-color);">Memproses...</div>
 </div>
 
 <div class="container">
   <div class="header-app">
     <h2>Hadirmu</h2>
-    <p>Absensi Siswa XI TKJ</p>
+    <p>Absensi Online XI TKJ</p>
   </div>
   
   <div class="form-group">
-    <label for="kelasSelect">Pilih Rombongan Belajar</label>
-    <select id="kelasSelect" onchange="loadSiswa()">
-      <option value="">-- Memuat Kelas... --</option>
-    </select>
+    <label>Pilih Rombongan Belajar</label>
+    
+    <!-- CUSTOM DROPDOWN -->
+    <div class="custom-select-wrapper" id="kelasWrapper">
+      <div class="custom-select-trigger" onclick="toggleDropdown()">
+        <span id="selectedKelasText">-- Memuat Kelas... --</span>
+        <div class="arrow"></div>
+      </div>
+      <div class="custom-options" id="customOptions">
+        <!-- Opsi kelas diisi otomatis oleh JS -->
+      </div>
+    </div>
+    <input type="hidden" id="selectedKelasValue" value="">
   </div>
 
-  <div id="daftarSiswa">
-    <!-- Area ini akan diisi dinamis oleh JS -->
-  </div>
+  <div id="daftarSiswa"></div>
 </div>
 
 <script>
   // =========================================================
-  // PASTE URL WEB APP GOOGLE APPS SCRIPT KAMU DI SINI:
+  // PASTE URL WEB APP APPS SCRIPT KAMU DI SINI:
   const API_URL = "https://script.google.com/macros/s/AKfycbxIQu0utyRAvlW3LkIicENdVBP-wMp6C65J4_IF9yt0cy7OjOCj2cfmkTYF0u4rWn-V/exec";
   // =========================================================
 
@@ -319,7 +374,20 @@
     loader.style.display = show ? 'flex' : 'none';
   }
 
-  // Load daftar kelas saat halaman dibuka
+  // Toggle Buka/Tutup Custom Dropdown
+  function toggleDropdown() {
+    document.getElementById('kelasWrapper').classList.toggle('open');
+  }
+
+  // Tutup dropdown jika klik di luar area dropdown
+  window.addEventListener('click', function(e) {
+    const wrapper = document.getElementById('kelasWrapper');
+    if (!wrapper.contains(e.target)) {
+      wrapper.classList.remove('open');
+    }
+  });
+
+  // Load daftar kelas dari Spreadsheet
   window.onload = function() {
     showLoader(true);
     fetch(API_URL, {
@@ -329,27 +397,51 @@
     .then(res => res.json())
     .then(res => {
       showLoader(false);
-      let select = document.getElementById('kelasSelect');
-      select.innerHTML = '<option value="">-- Pilih Kelas --</option>';
-      if (res.status === "success") {
+      const optionsContainer = document.getElementById('customOptions');
+      const triggerText = document.getElementById('selectedKelasText');
+      optionsContainer.innerHTML = '';
+
+      if (res.status === "success" && res.data.length > 0) {
+        triggerText.innerText = "-- Pilih Kelas --";
+        
         res.data.forEach(k => {
-          select.innerHTML += `<option value="${k}">${k}</option>`;
+          const option = document.createElement('div');
+          option.className = 'custom-option';
+          option.innerText = k;
+          option.onclick = function() {
+            selectKelas(k, this);
+          };
+          optionsContainer.appendChild(option);
         });
+      } else {
+        triggerText.innerText = "Tidak ada kelas ditemukan";
       }
     })
     .catch(err => {
       showLoader(false);
-      alert("Gagal memuat daftar kelas. Pastikan URL API benar.");
+      document.getElementById('selectedKelasText').innerText = "Gagal memuat kelas";
+      alert("Gagal terhubung ke API. Cek URL API Apps Script.");
     });
   };
 
-  // Load siswa ketika kelas dipilih
-  function loadSiswa() {
-    let kelas = document.getElementById('kelasSelect').value;
+  // Fungsi ketika opsi kelas dipilih
+  function selectKelas(kelas, element) {
+    document.getElementById('selectedKelasText').innerText = kelas;
+    document.getElementById('selectedKelasValue').value = kelas;
+    document.getElementById('kelasWrapper').classList.remove('open');
+
+    // Tandai opsi yang terpilih
+    document.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
+    element.classList.add('selected');
+
+    // Muat daftar siswa
+    loadSiswa(kelas);
+  }
+
+  // Load siswa dari kelas terpilih
+  function loadSiswa(kelas) {
     let container = document.getElementById('daftarSiswa');
     container.innerHTML = '';
-    
-    if (!kelas) return;
 
     showLoader(true);
 
@@ -362,7 +454,7 @@
       showLoader(false);
       if (res.status === "success") {
         if (res.data.length === 0) {
-          container.innerHTML = '<p style="text-align:center; color:#7f8c8d; font-size:14px; margin-top:20px;">Tidak ada siswa di kelas ini.</p>';
+          container.innerHTML = '<p style="text-align:center; color:#7f8c8d; font-size:13px; margin-top:20px;">Tidak ada siswa di kelas ini.</p>';
           return;
         }
 
@@ -374,19 +466,15 @@
                 <span class="nama-siswa-text">${nama}</span>
               </div>
               <div class="status-group">
-                <!-- Hadir -->
                 <input type="radio" id="h_${index}" name="status_${index}" value="Hadir" checked>
                 <label for="h_${index}" title="Hadir">H</label>
                 
-                <!-- Sakit -->
                 <input type="radio" id="s_${index}" name="status_${index}" value="Sakit">
                 <label for="s_${index}" title="Sakit">S</label>
                 
-                <!-- Izin -->
                 <input type="radio" id="i_${index}" name="status_${index}" value="Izin">
                 <label for="i_${index}" title="Izin">I</label>
                 
-                <!-- Alpha -->
                 <input type="radio" id="a_${index}" name="status_${index}" value="Alpha">
                 <label for="a_${index}" title="Alpha">A</label>
               </div>
@@ -402,9 +490,14 @@
 
   // Kirim data ke Spreadsheet
   function kirimAbsensi() {
+    let kelas = document.getElementById('selectedKelasValue').value;
+    if (!kelas) {
+      alert("Pilih kelas terlebih dahulu!");
+      return;
+    }
+
     if (!confirm("Apakah Anda yakin data absensi sudah benar?")) return;
 
-    let kelas = document.getElementById('kelasSelect').value;
     let rows = document.querySelectorAll('.siswa-row');
     let dataAbsensi = [];
 
@@ -426,7 +519,8 @@
       if (res.status === "success") {
         alert("✔️ " + res.message);
         document.getElementById('daftarSiswa').innerHTML = '';
-        document.getElementById('kelasSelect').value = '';
+        document.getElementById('selectedKelasText').innerText = '-- Pilih Kelas --';
+        document.getElementById('selectedKelasValue').value = '';
       } else {
         alert("❌ Gagal menyimpan: " + res.message);
       }
