@@ -2,61 +2,356 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Absensi Online XI TKJ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Hadirmu - Absensi Online XI TKJ</title>
+  
+  <!-- Menggunakan Font Modern Poppins dari Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
   <style>
-    body { font-family: Arial, sans-serif; padding: 15px; background-color: #f4f6f9; margin: 0; }
-    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 500px; margin: 20px auto; }
-    h2 { text-align: center; color: #333; margin-top: 0; }
-    select, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
-    button { background-color: #28a745; color: white; font-weight: bold; border: none; cursor: pointer; }
-    button:hover { background-color: #218838; }
-    .siswa-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
-    .status-group label { margin-left: 8px; cursor: pointer; }
-    #loading { text-align: center; display: none; margin-top: 15px; color: #007bff; font-weight: bold; }
+    /* Global Styles */
+    :root {
+      --primary-color: #4a90e2; /* Biru Modern */
+      --secondary-color: #f4f7f6;
+      --text-color: #333;
+      --bg-color: #e0e8f0;
+      
+      /* Warna Status */
+      --color-h: #2ecc71; /* Hadir - Hijau */
+      --color-i: #f1c40f; /* Izin - Kuning */
+      --color-s: #3498db; /* Sakit - Biru */
+      --color-a: #e74c3c; /* Alpha - Merah */
+    }
+
+    * { box-sizing: border-box; }
+
+    body { 
+      font-family: 'Poppins', sans-serif; 
+      background-color: var(--bg-color); 
+      color: var(--text-color);
+      margin: 0; 
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      /* Background Gradient Halus */
+      background-image: 
+        radial-gradient(at 10% 20%, rgba(74, 144, 226, 0.1) 0px, transparent 50%),
+        radial-gradient(at 90% 80%, rgba(46, 204, 113, 0.05) 0px, transparent 50%);
+    }
+
+    /* Container Utama - Efek Glassmorphism */
+    .container { 
+      width: 100%;
+      max-width: 550px; 
+      margin: 20px; 
+      padding: 30px; 
+      background: rgba(255, 255, 255, 0.7); 
+      border-radius: 20px; 
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    }
+
+    /* Header */
+    .header-app {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .header-app h2 { 
+      margin: 0; 
+      font-weight: 600; 
+      color: #2c3e50;
+      font-size: 24px;
+    }
+    
+    .header-app p {
+      margin: 5px 0 0;
+      font-weight: 300;
+      font-size: 14px;
+      color: #7f8c8d;
+    }
+
+    /* Input & Select */
+    label { 
+      font-weight: 600; 
+      font-size: 14px; 
+      color: #555;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    select { 
+      width: 100%; 
+      padding: 12px 15px; 
+      border-radius: 12px; 
+      border: 2px solid rgba(0,0,0,0.05); 
+      background-color: rgba(255,255,255,0.8);
+      font-size: 16px; 
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+      appearance: none; /* Hilangkan panah default */
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+    }
+
+    /* Pembatas Daftar Siswa */
+    #daftarSiswa { margin-top: 30px; }
+
+    .daftar-header {
+      font-weight: 600;
+      color: #2c3e50;
+      border-bottom: 2px solid rgba(0,0,0,0.05);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    /* ---------------------------------------------------- */
+    /* SESI INPUT KEHADIRAN (THE BEAUTY PART) */
+    /* ---------------------------------------------------- */
+    
+    .siswa-row { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      padding: 15px; 
+      background: rgba(255,255,255,0.5);
+      border-radius: 15px;
+      margin-bottom: 10px;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .siswa-row:hover {
+      background: rgba(255,255,255,0.9);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+
+    .nama-siswa-wrapper {
+      flex: 1;
+      padding-right: 15px;
+    }
+
+    .nama-siswa-text { 
+      font-size: 15px; 
+      font-weight: 400;
+      color: #333;
+    }
+
+    /* Group Tombol Status */
+    .status-group { 
+      display: flex;
+      gap: 8px; /* Jarak antar tombol H S I A */
+    }
+
+    /* Sembunyikan Radio Button Asli */
+    .status-group input[type="radio"] {
+      display: none;
+    }
+
+    /* Gaya Label sebagai Tombol Modern */
+    .status-group label {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      margin: 0;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      color: #7f8c8d; /* Warna teks awal */
+      background-color: #edf2f4; /* Warna bg awal */
+    }
+
+    /* Efek Hover di Label */
+    .status-group label:hover {
+      transform: scale(1.1);
+    }
+
+    /* -------------------------------------- */
+    /* Logika Warna Tombol saat DIPILIH (Checked) */
+    /* -------------------------------------- */
+
+    /* Hadir (H) */
+    .status-group input[value="Hadir"]:checked + label {
+      background-color: rgba(46, 204, 113, 0.15);
+      color: var(--color-h);
+      border-color: var(--color-h);
+    }
+
+    /* Izin (I) */
+    .status-group input[value="Izin"]:checked + label {
+      background-color: rgba(241, 196, 15, 0.15);
+      color: var(--color-i);
+      border-color: var(--color-i);
+    }
+
+    /* Sakit (S) */
+    .status-group input[value="Sakit"]:checked + label {
+      background-color: rgba(52, 152, 219, 0.15);
+      color: var(--color-s);
+      border-color: var(--color-s);
+    }
+
+    /* Alpha (A) */
+    .status-group input[value="Alpha"]:checked + label {
+      background-color: rgba(231, 76, 60, 0.15);
+      color: var(--color-a);
+      border-color: var(--color-a);
+    }
+
+    /* -------------------------------------- */
+
+    /* Tombol Simpan Besar */
+    .btn-simpan { 
+      width: 100%; 
+      padding: 15px; 
+      margin-top: 30px; 
+      border-radius: 12px; 
+      background: linear-gradient(135deg, var(--primary-color) 0%, #357abd 100%);
+      color: white; 
+      font-weight: 600; 
+      font-size: 16px;
+      font-family: 'Poppins', sans-serif;
+      border: none; 
+      cursor: pointer; 
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+    }
+
+    .btn-simpan:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+    }
+    
+    .btn-simpan:active {
+      transform: translateY(1px);
+    }
+
+    /* Loading Overlay */
+    #loading { 
+      display: none; 
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(5px);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      border-radius: 20px;
+    }
+    
+    .spinner {
+      border: 4px solid rgba(0,0,0,0.1);
+      border-left-color: var(--primary-color);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 10px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive Adjustment (HP Kecil) */
+    @media (max-width: 400px) {
+      .container { padding: 20px; margin: 10px; }
+      .nama-siswa-text { font-size: 14px; }
+      .status-group { gap: 4px; }
+      .status-group label { width: 32px; height: 32px; font-size: 12px; }
+    }
   </style>
 </head>
 <body>
 
-<div class="card">
-  <h2>Absensi Harian XI TKJ</h2>
-  
-  <label for="kelasSelect"><b>Pilih Kelas:</b></label>
-  <select id="kelasSelect" onchange="loadSiswa()">
-    <option value="">-- Memuat Kelas... --</option>
-  </select>
+<!-- Loading Overlay -->
+<div id="loading">
+  <div class="spinner"></div>
+  <div style="font-weight:600; color:var(--primary-color)">Memproses...</div>
+</div>
 
-  <div id="daftarSiswa"></div>
-  <div id="loading">Memproses data...</div>
+<div class="container">
+  <div class="header-app">
+    <h2>Hadirmu</h2>
+    <p>Absensi Siswa XI TKJ</p>
+  </div>
+  
+  <div class="form-group">
+    <label for="kelasSelect">Pilih Rombongan Belajar</label>
+    <select id="kelasSelect" onchange="loadSiswa()">
+      <option value="">-- Memuat Kelas... --</option>
+    </select>
+  </div>
+
+  <div id="daftarSiswa">
+    <!-- Area ini akan diisi dinamis oleh JS -->
+  </div>
 </div>
 
 <script>
+  // =========================================================
   // PASTE URL WEB APP GOOGLE APPS SCRIPT KAMU DI SINI:
   const API_URL = "https://script.google.com/macros/s/AKfycbxQNWcZunrrXf8Gs1cOCcU0dBXiPJ9Xx16m2OtUbTduywbjuPDKTb3RnrHXq13YcbvVUA/exec";
+  // =========================================================
 
+  const loader = document.getElementById('loading');
+
+  function showLoader(show) {
+    loader.style.display = show ? 'flex' : 'none';
+  }
+
+  // Load daftar kelas saat halaman dibuka
   window.onload = function() {
+    showLoader(true);
     fetch(API_URL, {
       method: "POST",
       body: JSON.stringify({ action: "getDaftarKelas" })
     })
     .then(res => res.json())
     .then(res => {
+      showLoader(false);
       let select = document.getElementById('kelasSelect');
       select.innerHTML = '<option value="">-- Pilih Kelas --</option>';
-      res.data.forEach(k => {
-        select.innerHTML += `<option value="${k}">${k}</option>`;
-      });
+      if (res.status === "success") {
+        res.data.forEach(k => {
+          select.innerHTML += `<option value="${k}">${k}</option>`;
+        });
+      }
     })
-    .catch(err => alert("Gagal memuat daftar kelas. Cek URL API."));
+    .catch(err => {
+      showLoader(false);
+      alert("Gagal memuat daftar kelas. Pastikan URL API benar.");
+    });
   };
 
+  // Load siswa ketika kelas dipilih
   function loadSiswa() {
     let kelas = document.getElementById('kelasSelect').value;
     let container = document.getElementById('daftarSiswa');
     container.innerHTML = '';
+    
     if (!kelas) return;
 
-    document.getElementById('loading').style.display = 'block';
+    showLoader(true);
 
     fetch(API_URL, {
       method: "POST",
@@ -64,33 +359,51 @@
     })
     .then(res => res.json())
     .then(res => {
-      document.getElementById('loading').style.display = 'none';
-      if (res.data.length === 0) {
-        container.innerHTML = '<p>Tidak ada siswa di kelas ini.</p>';
-        return;
-      }
+      showLoader(false);
+      if (res.status === "success") {
+        if (res.data.length === 0) {
+          container.innerHTML = '<p style="text-align:center; color:#7f8c8d; font-size:14px; margin-top:20px;">Tidak ada siswa di kelas ini.</p>';
+          return;
+        }
 
-      let html = '<h3 style="margin-top:20px;">Daftar Siswa:</h3>';
-      res.data.forEach((nama, index) => {
-        html += `
-          <div class="siswa-row">
-            <span>${nama}</span>
-            <div class="status-group">
-              <label><input type="radio" name="status_${index}" value="Hadir" checked> H</label>
-              <label><input type="radio" name="status_${index}" value="Izin"> I</label>
-              <label><input type="radio" name="status_${index}" value="Sakit"> S</label>
-              <label><input type="radio" name="status_${index}" value="Alpha"> A</label>
+        let html = '<div class="daftar-header">Daftar Kehadiran</div>';
+        res.data.forEach((nama, index) => {
+          html += `
+            <div class="siswa-row">
+              <div class="nama-siswa-wrapper">
+                <span class="nama-siswa-text">${nama}</span>
+              </div>
+              <div class="status-group">
+                <!-- Hadir -->
+                <input type="radio" id="h_${index}" name="status_${index}" value="Hadir" checked>
+                <label for="h_${index}" title="Hadir">H</label>
+                
+                <!-- Sakit -->
+                <input type="radio" id="s_${index}" name="status_${index}" value="Sakit">
+                <label for="s_${index}" title="Sakit">S</label>
+                
+                <!-- Izin -->
+                <input type="radio" id="i_${index}" name="status_${index}" value="Izin">
+                <label for="i_${index}" title="Izin">I</label>
+                
+                <!-- Alpha -->
+                <input type="radio" id="a_${index}" name="status_${index}" value="Alpha">
+                <label for="a_${index}" title="Alpha">A</label>
+              </div>
+              <input type="hidden" class="nama-siswa" value="${nama}">
             </div>
-            <input type="hidden" class="nama-siswa" value="${nama}">
-          </div>
-        `;
-      });
-      html += '<button onclick="kirimAbsensi()">Simpan Absensi</button>';
-      container.innerHTML = html;
+          `;
+        });
+        html += '<button class="btn-simpan" onclick="kirimAbsensi()">Simpan Absensi Hari Ini</button>';
+        container.innerHTML = html;
+      }
     });
   }
 
+  // Kirim data ke Spreadsheet
   function kirimAbsensi() {
+    if (!confirm("Apakah Anda yakin data absensi sudah benar?")) return;
+
     let kelas = document.getElementById('kelasSelect').value;
     let rows = document.querySelectorAll('.siswa-row');
     let dataAbsensi = [];
@@ -101,7 +414,7 @@
       dataAbsensi.push({ nama: nama, status: status });
     });
 
-    document.getElementById('loading').style.display = 'block';
+    showLoader(true);
 
     fetch(API_URL, {
       method: "POST",
@@ -109,10 +422,18 @@
     })
     .then(res => res.json())
     .then(res => {
-      document.getElementById('loading').style.display = 'none';
-      alert(res.message);
-      document.getElementById('daftarSiswa').innerHTML = '';
-      document.getElementById('kelasSelect').value = '';
+      showLoader(false);
+      if (res.status === "success") {
+        alert("✔️ " + res.message);
+        document.getElementById('daftarSiswa').innerHTML = '';
+        document.getElementById('kelasSelect').value = '';
+      } else {
+        alert("❌ Gagal menyimpan: " + res.message);
+      }
+    })
+    .catch(err => {
+      showLoader(false);
+      alert("❌ Terjadi kesalahan jaringan.");
     });
   }
 </script>
