@@ -32,11 +32,88 @@
       margin: 0; 
       padding: 0;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
       min-height: 100vh;
       background-image: 
         radial-gradient(at 10% 20%, rgba(74, 144, 226, 0.12) 0px, transparent 50%),
         radial-gradient(at 90% 80%, rgba(46, 204, 113, 0.08) 0px, transparent 50%);
+    }
+
+    /* ---------------------------------------------------- */
+    /* NAVBAR STYLE */
+    /* ---------------------------------------------------- */
+    .navbar {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      padding: 0 20px;
+    }
+
+    .navbar-container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 60px;
+    }
+
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-color);
+      font-weight: 600;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .navbar-brand .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--primary-color) 0%, #357abd 100%);
+      color: white;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+    }
+
+    .navbar-menu {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      gap: 20px;
+    }
+
+    .navbar-menu button {
+      background: none;
+      border: none;
+      font-family: 'Poppins', sans-serif;
+      color: #666;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.2s ease;
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+
+    .navbar-menu button:hover {
+      color: var(--primary-color);
+      background: rgba(74, 144, 226, 0.08);
     }
 
     /* Container Utama */
@@ -80,9 +157,7 @@
       margin-bottom: 8px;
     }
 
-    /* ---------------------------------------------------- */
-    /* CUSTOM DROPDOWN MODERN & ROUNDED (THE NEW LOOK) */
-    /* ---------------------------------------------------- */
+    /* CUSTOM DROPDOWN MODERN & ROUNDED */
     .custom-select-wrapper {
       position: relative;
       user-select: none;
@@ -124,7 +199,6 @@
       margin-bottom: -3px;
     }
 
-    /* Menu Pilihan Kelas (Dropdown Menu) */
     .custom-options {
       position: absolute;
       display: block;
@@ -170,7 +244,7 @@
     .custom-option:hover {
       background-color: rgba(74, 144, 226, 0.1);
       color: var(--primary-color);
-      padding-left: 20px; /* Efek bergeser halus saat di-hover */
+      padding-left: 20px;
     }
 
     .custom-option.selected {
@@ -178,7 +252,6 @@
       color: white;
     }
 
-    /* Scrollbar halus untuk dropdown */
     .custom-options::-webkit-scrollbar {
       width: 6px;
     }
@@ -186,8 +259,6 @@
       background: rgba(0,0,0,0.1);
       border-radius: 10px;
     }
-
-    /* ---------------------------------------------------- */
 
     #daftarSiswa { margin-top: 25px; }
 
@@ -323,14 +394,111 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ---------------------------------------------------- */
+    /* MODAL PASSWORD (BARU) */
+    /* ---------------------------------------------------- */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-box {
+      background: white;
+      padding: 24px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 360px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+      text-align: center;
+      animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.85); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-box h3 { margin: 0 0 8px; font-size: 18px; color: var(--text-color); }
+    .modal-box p { font-size: 13px; color: #666; margin-bottom: 16px; }
+
+    .input-password {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+      outline: none;
+      font-family: inherit;
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .input-password:focus {
+      border-color: var(--primary-color);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-modal {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-cancel { background: #edf2f4; color: #555; }
+    .btn-submit { background: var(--primary-color); color: white; }
+
     @media (max-width: 400px) {
       .container { padding: 20px; margin: 10px; }
       .nama-siswa-text { font-size: 13px; }
       .status-group label { width: 32px; height: 32px; font-size: 12px; }
+      .navbar-menu { gap: 8px; }
     }
   </style>
 </head>
 <body>
+
+<!-- NAVBAR HEADER -->
+<nav class="navbar">
+  <div class="navbar-container">
+    <div class="navbar-brand" onclick="goHome()">
+      <div class="logo-icon">H</div>
+      <span>Hadirmu</span>
+    </div>
+    <div class="navbar-menu">
+      <button onclick="goHome()">Home</button>
+      <button onclick="openPassModal()">Laporan</button>
+    </div>
+  </div>
+</nav>
+
+<!-- MODAL PASSWORD LAPORAN -->
+<div class="modal-overlay" id="passModal">
+  <div class="modal-box">
+    <h3>Akses Laporan</h3>
+    <p>Masukkan kata sandi untuk melihat spreadsheet laporan.</p>
+    <input type="password" id="passInput" class="input-password" placeholder="Kata Sandi..." onkeyup="if(event.key==='Enter') verifyPassword()">
+    <div class="modal-actions">
+      <button class="btn-modal btn-cancel" onclick="closePassModal()">Batal</button>
+      <button class="btn-modal btn-submit" onclick="verifyPassword()">Buka</button>
+    </div>
+  </div>
+</div>
 
 <div id="loading">
   <div class="spinner"></div>
@@ -364,14 +532,48 @@
 
 <script>
   // =========================================================
-  // PASTE URL WEB APP APPS SCRIPT KAMU DI SINI:
   const API_URL = "https://script.google.com/macros/s/AKfycbxIQu0utyRAvlW3LkIicENdVBP-wMp6C65J4_IF9yt0cy7OjOCj2cfmkTYF0u4rWn-V/exec";
+  const SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1foU4hKjM2QgOqsJbhEZYrjciVamT7LP8-YdUjPeVPfs/edit?gid=1941866150#gid=1941866150";
+  
+  // UBAH KATA SANDI LAPORAN DI SINI:
+  const PASS_LAPORAN = "admin123";
   // =========================================================
 
   const loader = document.getElementById('loading');
 
   function showLoader(show) {
     loader.style.display = show ? 'flex' : 'none';
+  }
+
+  // Fungsi Tombol Home
+  function goHome() {
+    document.getElementById('selectedKelasText').innerText = '-- Pilih Kelas --';
+    document.getElementById('selectedKelasValue').value = '';
+    document.getElementById('daftarSiswa').innerHTML = '';
+    document.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
+  }
+
+  // Fungsi Modal Password Laporan
+  function openPassModal() {
+    document.getElementById('passInput').value = '';
+    document.getElementById('passModal').style.display = 'flex';
+    document.getElementById('passInput').focus();
+  }
+
+  function closePassModal() {
+    document.getElementById('passModal').style.display = 'none';
+  }
+
+  function verifyPassword() {
+    const inputPass = document.getElementById('passInput').value;
+    if (inputPass === PASS_LAPORAN) {
+      closePassModal();
+      window.open(SPREADSHEET_URL, '_blank');
+    } else {
+      alert("❌ Kata sandi salah!");
+      document.getElementById('passInput').value = '';
+      document.getElementById('passInput').focus();
+    }
   }
 
   // Toggle Buka/Tutup Custom Dropdown
@@ -382,7 +584,7 @@
   // Tutup dropdown jika klik di luar area dropdown
   window.addEventListener('click', function(e) {
     const wrapper = document.getElementById('kelasWrapper');
-    if (!wrapper.contains(e.target)) {
+    if (wrapper && !wrapper.contains(e.target)) {
       wrapper.classList.remove('open');
     }
   });
@@ -518,9 +720,7 @@
       showLoader(false);
       if (res.status === "success") {
         alert("✔️ " + res.message);
-        document.getElementById('daftarSiswa').innerHTML = '';
-        document.getElementById('selectedKelasText').innerText = '-- Pilih Kelas --';
-        document.getElementById('selectedKelasValue').value = '';
+        goHome();
       } else {
         alert("❌ Gagal menyimpan: " + res.message);
       }
