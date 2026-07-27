@@ -41,19 +41,19 @@
     }
 
     /* ---------------------------------------------------- */
-    /* NAVBAR STYLE */
+    /* NAVBAR STYLE (RESPONSIF MOBILE FIRST & DESKTOP) */
     /* ---------------------------------------------------- */
     .navbar {
       width: 100%;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.4);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.04);
       position: sticky;
       top: 0;
       z-index: 500;
-      padding: 0 20px;
+      padding: 0 16px;
     }
 
     .navbar-container {
@@ -68,85 +68,114 @@
     .navbar-brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       text-decoration: none;
       color: var(--text-color);
       font-weight: 600;
-      font-size: 18px;
+      font-size: 17px;
       cursor: pointer;
+      user-select: none;
     }
 
-    /* DESAIN IKON KOTAK-KOTAK & ANIMASI HOVER */
+    /* DESAIN IKON LOGO */
     .navbar-brand .logo-icon {
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       background: #eef6ff;
-      border-radius: 12px;
+      border-radius: 10px;
       display: flex;
       justify-content: center;
       align-items: center;
       transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      box-shadow: 0 2px 8px rgba(74, 144, 226, 0.12);
+      box-shadow: 0 2px 6px rgba(74, 144, 226, 0.12);
       border: 1px solid rgba(74, 144, 226, 0.15);
+      flex-shrink: 0;
     }
 
     .navbar-brand .logo-icon svg {
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       stroke: #0084ff;
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    /* Animasi saat disorot (Hover) */
     .navbar-brand:hover .logo-icon {
       background: #e0f0ff;
-      transform: scale(1.08);
-      box-shadow: 0 4px 14px rgba(0, 132, 255, 0.25);
-      border-color: rgba(0, 132, 255, 0.3);
+      transform: scale(1.06);
+      box-shadow: 0 4px 12px rgba(0, 132, 255, 0.2);
     }
 
     .navbar-brand:hover .logo-icon svg {
-      transform: rotate(90deg) scale(1.05);
-    }
-
-    .navbar-brand:active .logo-icon {
-      transform: scale(0.95);
+      transform: rotate(90deg);
     }
 
     .navbar-menu {
       display: flex;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      gap: 12px;
+      align-items: center;
+      gap: 6px;
     }
 
     .navbar-menu button {
-      background: none;
+      background: transparent;
       border: none;
       font-family: 'Poppins', sans-serif;
-      color: #666;
-      font-size: 14px;
+      color: #555;
+      font-size: 13px;
       font-weight: 500;
       cursor: pointer;
-      transition: color 0.2s ease, background 0.2s ease;
-      padding: 6px 12px;
-      border-radius: 8px;
+      transition: all 0.2s ease;
+      padding: 7px 12px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
     }
 
-    .navbar-menu button:hover {
+    .navbar-menu button:hover, .navbar-menu button:active {
       color: var(--primary-color);
-      background: rgba(74, 144, 226, 0.08);
+      background: rgba(74, 144, 226, 0.1);
+    }
+
+    /* OPIMASI NAVBAR UNTUK LAYAR HP (MOBILE) */
+    @media (max-width: 480px) {
+      .navbar {
+        padding: 0 12px;
+      }
+
+      .navbar-brand span {
+        font-size: 16px;
+      }
+
+      .navbar-brand .logo-icon {
+        width: 34px;
+        height: 34px;
+      }
+
+      .navbar-menu {
+        gap: 2px;
+      }
+
+      .navbar-menu button {
+        padding: 6px 8px;
+        font-size: 12px;
+      }
+
+      /* Sembunyikan teks menu opsional jika sangat sempit, atau sesuaikan ukuran */
+      .navbar-menu button svg {
+        width: 15px;
+        height: 15px;
+      }
     }
 
     /* Container Utama */
     .container { 
-      width: 100%;
+      width: calc(100% - 32px);
       max-width: 520px; 
-      margin: 20px; 
-      padding: 30px; 
+      margin: 16px auto; 
+      padding: 24px; 
       background: rgba(255, 255, 255, 0.75); 
-      border-radius: 24px; 
+      border-radius: 20px; 
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.4);
@@ -155,14 +184,14 @@
 
     .header-app {
       text-align: center;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
     
     .header-app h2 { 
       margin: 0; 
       font-weight: 600; 
       color: var(--text-color);
-      font-size: 26px;
+      font-size: 24px;
     }
     
     .header-app p {
@@ -180,7 +209,7 @@
       margin-bottom: 8px;
     }
 
-    /* CUSTOM DROPDOWN MODERN & ROUNDED */
+    /* CUSTOM DROPDOWN MODERN */
     .custom-select-wrapper {
       position: relative;
       user-select: none;
@@ -190,11 +219,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 14px 18px;
+      padding: 12px 16px;
       background: rgba(255, 255, 255, 0.9);
-      border-radius: 16px;
+      border-radius: 14px;
       border: 2px solid rgba(0,0,0,0.04);
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 500;
       color: #333;
       cursor: pointer;
@@ -208,18 +237,18 @@
     }
 
     .custom-select-trigger .arrow {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       border-right: 2px solid #666;
       border-bottom: 2px solid #666;
       transform: rotate(45deg);
       transition: transform 0.3s ease;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
 
     .custom-select-wrapper.open .custom-select-trigger .arrow {
       transform: rotate(-135deg);
-      margin-bottom: -3px;
+      margin-bottom: -2px;
     }
 
     .custom-options {
@@ -228,20 +257,20 @@
       top: 100%;
       left: 0;
       right: 0;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.98);
+      border-radius: 14px;
       border: 1px solid rgba(0,0,0,0.05);
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      margin-top: 8px;
+      margin-top: 6px;
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
-      transform: translateY(-10px);
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: translateY(-8px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       z-index: 100;
-      max-height: 250px;
+      max-height: 220px;
       overflow-y: auto;
       padding: 6px;
     }
@@ -254,12 +283,12 @@
     }
 
     .custom-option {
-      padding: 12px 16px;
-      font-size: 14px;
+      padding: 10px 14px;
+      font-size: 13.5px;
       font-weight: 500;
       color: #444;
       cursor: pointer;
-      border-radius: 10px;
+      border-radius: 8px;
       transition: all 0.2s ease;
       margin-bottom: 2px;
     }
@@ -267,7 +296,6 @@
     .custom-option:hover {
       background-color: rgba(74, 144, 226, 0.1);
       color: var(--primary-color);
-      padding-left: 20px;
     }
 
     .custom-option.selected {
@@ -275,57 +303,49 @@
       color: white;
     }
 
-    .custom-options::-webkit-scrollbar {
-      width: 6px;
-    }
-    .custom-options::-webkit-scrollbar-thumb {
-      background: rgba(0,0,0,0.1);
-      border-radius: 10px;
-    }
-
-    #daftarSiswa { margin-top: 25px; }
+    #daftarSiswa { margin-top: 20px; }
 
     .daftar-header {
       font-weight: 600;
       color: var(--text-color);
       border-bottom: 2px solid rgba(0,0,0,0.05);
-      padding-bottom: 10px;
-      margin-bottom: 15px;
-      font-size: 16px;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      font-size: 15px;
     }
 
     .siswa-row { 
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
-      padding: 12px 15px; 
+      padding: 10px 12px; 
       background: rgba(255,255,255,0.6);
-      border-radius: 14px;
-      margin-bottom: 10px;
+      border-radius: 12px;
+      margin-bottom: 8px;
       transition: all 0.2s ease;
       border: 1px solid rgba(255, 255, 255, 0.5);
     }
 
-    .siswa-row:hover {
-      background: rgba(255,255,255,0.95);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    }
-
     .nama-siswa-wrapper {
       flex: 1;
-      padding-right: 10px;
+      padding-right: 8px;
+      overflow: hidden;
     }
 
     .nama-siswa-text { 
-      font-size: 14px; 
+      font-size: 13.5px; 
       font-weight: 500;
       color: #333;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
     }
 
     .status-group { 
       display: flex;
-      gap: 6px; 
+      gap: 4px; 
+      flex-shrink: 0;
     }
 
     .status-group input[type="radio"] { display: none; }
@@ -334,20 +354,18 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
       margin: 0;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       transition: all 0.2s ease;
       border: 2px solid transparent;
-      color: #888; 
+      color: #777; 
       background-color: #edf2f4; 
     }
-
-    .status-group label:hover { transform: scale(1.08); }
 
     .status-group input[value="Hadir"]:checked + label {
       background-color: rgba(46, 204, 113, 0.15);
@@ -375,23 +393,18 @@
 
     .btn-simpan { 
       width: 100%; 
-      padding: 14px; 
-      margin-top: 25px; 
-      border-radius: 14px; 
+      padding: 12px; 
+      margin-top: 20px; 
+      border-radius: 12px; 
       background: linear-gradient(135deg, var(--primary-color) 0%, #357abd 100%);
       color: white; 
       font-weight: 600; 
-      font-size: 15px;
+      font-size: 14.5px;
       font-family: 'Poppins', sans-serif;
       border: none; 
       cursor: pointer; 
       transition: all 0.3s ease;
       box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
-    }
-
-    .btn-simpan:hover { 
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
     }
 
     #loading { 
@@ -406,101 +419,75 @@
     }
     
     .spinner {
-      border: 4px solid rgba(0,0,0,0.1);
+      border: 3px solid rgba(0,0,0,0.1);
       border-left-color: var(--primary-color);
       border-radius: 50%;
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       animation: spin 0.8s linear infinite;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ---------------------------------------------------- */
     /* MODAL PASSWORD */
-    /* ---------------------------------------------------- */
     .modal-overlay {
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
       z-index: 1000;
       justify-content: center;
       align-items: center;
+      padding: 20px;
     }
 
     .modal-box {
       background: white;
-      padding: 24px;
-      border-radius: 20px;
-      width: 90%;
-      max-width: 360px;
+      padding: 20px;
+      border-radius: 18px;
+      width: 100%;
+      max-width: 340px;
       box-shadow: 0 15px 35px rgba(0,0,0,0.15);
       text-align: center;
-      animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    @keyframes modalPop {
-      from { transform: scale(0.85); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    .modal-box h3 { margin: 0 0 8px; font-size: 18px; color: var(--text-color); }
-    .modal-box p { font-size: 13px; color: #666; margin-bottom: 16px; }
+    .modal-box h3 { margin: 0 0 6px; font-size: 17px; color: var(--text-color); }
+    .modal-box p { font-size: 12.5px; color: #666; margin-bottom: 14px; }
 
     .input-password {
       width: 100%;
-      padding: 12px 14px;
-      border-radius: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
       border: 1px solid #ddd;
       font-size: 14px;
       outline: none;
-      font-family: inherit;
-      margin-bottom: 16px;
-      transition: border-color 0.2s;
+      margin-bottom: 14px;
     }
 
-    .input-password:focus {
-      border-color: var(--primary-color);
-    }
-
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-    }
+    .modal-actions { display: flex; gap: 8px; }
 
     .btn-modal {
       flex: 1;
-      padding: 10px;
-      border-radius: 10px;
+      padding: 9px;
+      border-radius: 8px;
       border: none;
       font-weight: 600;
-      font-size: 14px;
+      font-size: 13.5px;
       cursor: pointer;
-      font-family: inherit;
     }
 
     .btn-cancel { background: #edf2f4; color: #555; }
     .btn-submit { background: var(--primary-color); color: white; }
-
-    @media (max-width: 400px) {
-      .container { padding: 20px; margin: 10px; }
-      .nama-siswa-text { font-size: 13px; }
-      .status-group label { width: 32px; height: 32px; font-size: 12px; }
-      .navbar-menu { gap: 4px; }
-      .navbar-menu button { padding: 6px 8px; font-size: 13px; }
-    }
   </style>
 </head>
 <body>
 
-<!-- NAVBAR HEADER -->
+<!-- NAVBAR HEADER RESPONSIF -->
 <nav class="navbar">
   <div class="navbar-container">
-    <!-- KLIK LOGO / NAMA BRAND AKAN MENGARAHKAN KE ITSMUU.GITHUB.IO -->
+    <!-- LOGO MENGARAH KE ITSMUU.GITHUB.IO -->
     <div class="navbar-brand" onclick="goDashboard()">
       <div class="logo-icon">
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -512,10 +499,21 @@
       </div>
       <span>Hadirmu</span>
     </div>
+
+    <!-- MENU TOMBOL MOBILE-FRIENDLY -->
     <div class="navbar-menu">
-      <button onclick="goDashboard()">Dashboard</button>
-      <button onclick="goHome()">Home</button>
-      <button onclick="openPassModal()">Laporan</button>
+      <button onclick="goDashboard()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+        <span>Dash</span>
+      </button>
+      <button onclick="goHome()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+        <span>Reset</span>
+      </button>
+      <button onclick="openPassModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        <span>Laporan</span>
+      </button>
     </div>
   </div>
 </nav>
@@ -524,7 +522,7 @@
 <div class="modal-overlay" id="passModal">
   <div class="modal-box">
     <h3>Akses Laporan</h3>
-    <p>Masukkan kata sandi untuk melihat spreadsheet laporan.</p>
+    <p>Masukkan kata sandi spreadsheet laporan.</p>
     <input type="password" id="passInput" class="input-password" placeholder="Kata Sandi..." onkeyup="if(event.key==='Enter') verifyPassword()">
     <div class="modal-actions">
       <button class="btn-modal btn-cancel" onclick="closePassModal()">Batal</button>
@@ -535,7 +533,7 @@
 
 <div id="loading">
   <div class="spinner"></div>
-  <div style="font-weight:600; color:var(--primary-color);">Memproses...</div>
+  <div style="font-weight:600; font-size: 13px; color:var(--primary-color);">Memproses...</div>
 </div>
 
 <div class="container">
@@ -553,9 +551,7 @@
         <span id="selectedKelasText">-- Memuat Kelas... --</span>
         <div class="arrow"></div>
       </div>
-      <div class="custom-options" id="customOptions">
-        <!-- Opsi kelas diisi otomatis oleh JS -->
-      </div>
+      <div class="custom-options" id="customOptions"></div>
     </div>
     <input type="hidden" id="selectedKelasValue" value="">
   </div>
@@ -568,8 +564,6 @@
   const API_URL = "https://script.google.com/macros/s/AKfycbxIQu0utyRAvlW3LkIicENdVBP-wMp6C65J4_IF9yt0cy7OjOCj2cfmkTYF0u4rWn-V/exec";
   const SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1foU4hKjM2QgOqsJbhEZYrjciVamT7LP8-YdUjPeVPfs/edit?gid=1941866150#gid=1941866150";
   const DASHBOARD_URL = "https://itsmuu.github.io";
-  
-  // UBAH KATA SANDI LAPORAN DI SINI:
   const PASS_LAPORAN = "admin123";
   // =========================================================
 
@@ -579,12 +573,10 @@
     loader.style.display = show ? 'flex' : 'none';
   }
 
-  // Fungsi Tombol Dashboard / Klik Logo
   function goDashboard() {
     window.location.href = DASHBOARD_URL;
   }
 
-  // Fungsi Tombol Home
   function goHome() {
     document.getElementById('selectedKelasText').innerText = '-- Pilih Kelas --';
     document.getElementById('selectedKelasValue').value = '';
@@ -592,7 +584,6 @@
     document.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
   }
 
-  // Fungsi Modal Password Laporan
   function openPassModal() {
     document.getElementById('passInput').value = '';
     document.getElementById('passModal').style.display = 'flex';
@@ -615,12 +606,10 @@
     }
   }
 
-  // Toggle Buka/Tutup Custom Dropdown
   function toggleDropdown() {
     document.getElementById('kelasWrapper').classList.toggle('open');
   }
 
-  // Tutup dropdown jika klik di luar area dropdown
   window.addEventListener('click', function(e) {
     const wrapper = document.getElementById('kelasWrapper');
     if (wrapper && !wrapper.contains(e.target)) {
@@ -628,7 +617,6 @@
     }
   });
 
-  // Load daftar kelas dari Spreadsheet
   window.onload = function() {
     showLoader(true);
     fetch(API_URL, {
@@ -665,21 +653,17 @@
     });
   };
 
-  // Fungsi ketika opsi kelas dipilih
   function selectKelas(kelas, element) {
     document.getElementById('selectedKelasText').innerText = kelas;
     document.getElementById('selectedKelasValue').value = kelas;
     document.getElementById('kelasWrapper').classList.remove('open');
 
-    // Tandai opsi yang terpilih
     document.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
     element.classList.add('selected');
 
-    // Muat daftar siswa
     loadSiswa(kelas);
   }
 
-  // Load siswa dari kelas terpilih
   function loadSiswa(kelas) {
     let container = document.getElementById('daftarSiswa');
     container.innerHTML = '';
@@ -729,7 +713,6 @@
     });
   }
 
-  // Kirim data ke Spreadsheet
   function kirimAbsensi() {
     let kelas = document.getElementById('selectedKelasValue').value;
     if (!kelas) {
