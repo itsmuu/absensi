@@ -95,7 +95,7 @@
       list-style: none;
       margin: 0;
       padding: 0;
-      gap: 20px;
+      gap: 12px;
     }
 
     .navbar-menu button {
@@ -395,7 +395,7 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ---------------------------------------------------- */
-    /* MODAL PASSWORD (BARU) */
+    /* MODAL PASSWORD */
     /* ---------------------------------------------------- */
     .modal-overlay {
       display: none;
@@ -467,7 +467,8 @@
       .container { padding: 20px; margin: 10px; }
       .nama-siswa-text { font-size: 13px; }
       .status-group label { width: 32px; height: 32px; font-size: 12px; }
-      .navbar-menu { gap: 8px; }
+      .navbar-menu { gap: 4px; }
+      .navbar-menu button { padding: 6px 8px; font-size: 13px; }
     }
   </style>
 </head>
@@ -481,6 +482,7 @@
       <span>Hadirmu</span>
     </div>
     <div class="navbar-menu">
+      <button onclick="goDashboard()">Dashboard</button>
       <button onclick="goHome()">Home</button>
       <button onclick="openPassModal()">Laporan</button>
     </div>
@@ -534,6 +536,7 @@
   // =========================================================
   const API_URL = "https://script.google.com/macros/s/AKfycbxIQu0utyRAvlW3LkIicENdVBP-wMp6C65J4_IF9yt0cy7OjOCj2cfmkTYF0u4rWn-V/exec";
   const SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1foU4hKjM2QgOqsJbhEZYrjciVamT7LP8-YdUjPeVPfs/edit?gid=1941866150#gid=1941866150";
+  const DASHBOARD_URL = "https://itsmuu.github.io";
   
   // UBAH KATA SANDI LAPORAN DI SINI:
   const PASS_LAPORAN = "admin123";
@@ -543,6 +546,11 @@
 
   function showLoader(show) {
     loader.style.display = show ? 'flex' : 'none';
+  }
+
+  // Fungsi Tombol Dashboard
+  function goDashboard() {
+    window.location.href = DASHBOARD_URL;
   }
 
   // Fungsi Tombol Home
