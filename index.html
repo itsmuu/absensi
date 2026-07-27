@@ -68,7 +68,7 @@
     .navbar-brand {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       text-decoration: none;
       color: var(--text-color);
       font-weight: 600;
@@ -76,18 +76,41 @@
       cursor: pointer;
     }
 
+    /* DESAIN IKON KOTAK-KOTAK & ANIMASI HOVER */
     .navbar-brand .logo-icon {
-      width: 32px;
-      height: 32px;
-      background: linear-gradient(135deg, var(--primary-color) 0%, #357abd 100%);
-      color: white;
-      border-radius: 8px;
+      width: 38px;
+      height: 38px;
+      background: #eef6ff;
+      border-radius: 12px;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 16px;
-      font-weight: 600;
-      box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 2px 8px rgba(74, 144, 226, 0.12);
+      border: 1px solid rgba(74, 144, 226, 0.15);
+    }
+
+    .navbar-brand .logo-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke: #0084ff;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Animasi saat disorot (Hover) */
+    .navbar-brand:hover .logo-icon {
+      background: #e0f0ff;
+      transform: scale(1.08);
+      box-shadow: 0 4px 14px rgba(0, 132, 255, 0.25);
+      border-color: rgba(0, 132, 255, 0.3);
+    }
+
+    .navbar-brand:hover .logo-icon svg {
+      transform: rotate(90deg) scale(1.05);
+    }
+
+    .navbar-brand:active .logo-icon {
+      transform: scale(0.95);
     }
 
     .navbar-menu {
@@ -106,7 +129,7 @@
       font-size: 14px;
       font-weight: 500;
       cursor: pointer;
-      transition: color 0.2s ease;
+      transition: color 0.2s ease, background 0.2s ease;
       padding: 6px 12px;
       border-radius: 8px;
     }
@@ -477,8 +500,16 @@
 <!-- NAVBAR HEADER -->
 <nav class="navbar">
   <div class="navbar-container">
-    <div class="navbar-brand" onclick="goHome()">
-      <div class="logo-icon">H</div>
+    <!-- KLIK LOGO / NAMA BRAND AKAN MENGARAHKAN KE ITSMUU.GITHUB.IO -->
+    <div class="navbar-brand" onclick="goDashboard()">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="7" height="7" rx="2.5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="14" y="3" width="7" height="7" rx="2.5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="14" y="14" width="7" height="7" rx="2.5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="3" y="14" width="7" height="7" rx="2.5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
       <span>Hadirmu</span>
     </div>
     <div class="navbar-menu">
@@ -548,7 +579,7 @@
     loader.style.display = show ? 'flex' : 'none';
   }
 
-  // Fungsi Tombol Dashboard
+  // Fungsi Tombol Dashboard / Klik Logo
   function goDashboard() {
     window.location.href = DASHBOARD_URL;
   }
