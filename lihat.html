@@ -22,8 +22,8 @@
   
   <div class="card">
     <div>
-      <label for="kelasSelect"><strong>Pilih Kelas / Sheet:</strong></label>
-      <select id="kelasSelect"><option value="">-- Memuat Data --</option></select>
+      <label for="kelasSelect"><strong>Pilih Kelas:</strong></label>
+      <select id="kelasSelect"><option value="">-- Memuat Data Kelas --</option></select>
       <button id="refreshBtn">Refresh Data</button>
     </div>
 
@@ -33,52 +33,13 @@
   <script>
     const SPREADSHEET_ID = '1foU4hKjM2QgOqsJbhEZYrjciVamT7LP8-YdUjPeVPfs';
 
-    // Fallback jika auto-detect gagal
-    const FALLBACK_SHEETS = [
-      'Siswa',
-      'XI TKJ 3',
-      'XI TKJ 2',
-      'XII TKJ 3',
-      'XII TKJ 2',
-      '11 TKJ 3 salinan',
-      'XI TKJ 4'
-    ];
-
     function escapeHtml(str) {
       return String(str).replace(/[&<>"']/g, function(s) { 
         return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]); 
       });
     }
 
-    async function fetchSheetNames() {
-      try {
-        const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=Siswa&range=A1`;
-        const res = await fetch(url, { cache: 'no-store' });
-        
-        if (!res.ok) throw new Error('Gagal memuat metadata sheet');
-        
-        const text = await res.text();
-        const firstBrace = text.indexOf('{');
-        const lastBrace = text.lastIndexOf('}');
-        
-        if (firstBrace === -1 || lastBrace === -1) throw new Error('Format respon tidak valid');
-        
-        const json = JSON.parse(text.slice(firstBrace, lastBrace + 1));
-        
-        // Ambil nama sheet dari response header
-        if (json.table && json.table.cols) {
-          const sheetName = json.p?.toString() || null;
-          console.log('Sheet detected:', sheetName);
-        }
-
-        // Fallback ke daftar manual
-        return FALLBACK_SHEETS;
-      } catch (err) {
-        console.warn('Auto-detect sheet gagal, menggunakan fallback:', err.message);
-        return FALLBACK_SHEETS;
-      }
-    }
-
+    // Fungsi untuk mengambil data dari sheet tertentu
     async function fetchSheetData(sheetName) {
       const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
       
@@ -106,6 +67,43 @@
       });
 
       return { headers, rows };
+    }
+
+    // Ambil daftar kelas secara dinamis dari sheet "Siswa"
+    async function loadKelasFromSiswaSheet() {
+      const kelasSelect = document.getElementById('kelasSelect');
+      kelasSelect.innerHTML = '<option value="">-- Memuat Daftar Kelas... --</option>';
+
+      try {
+        const siswaData = await fetchSheetData('Siswa');
+        const headers = siswaData.headers;
+
+        // Cari kolom yang mengandung nama 'kelas'
+        let kelasIdx = headers.findIndex(h => /kelas/i.test(h));
+        if (kelasIdx === -1) kelasIdx = 2; // fallback ke kolom ke-3 jika header tidak terdeteksi
+
+        const kelasSet = new Set();
+        siswaData.rows.forEach(r => {
+          const val = String(r[kelasIdx] || '').trim();
+          if (val && !/kelas/i.test(val)) {
+            kelasSet.add(val);
+          }
+        });
+
+        const listKelas = Array.from(kelasSet).sort();
+
+        if (listKelas.length === 0) {
+          kelasSelect.innerHTML = '<option value="">-- Kelas Tidak Ditemukan --</option>';
+          return;
+        }
+
+        kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>' + 
+          listKelas.map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join('');
+
+      } catch (err) {
+        console.error(err);
+        kelasSelect.innerHTML = `<option value="">-- Gagal Memuat Kelas (${escapeHtml(err.message)}) --</option>`;
+      }
     }
 
     function detectColumns(headers) {
@@ -217,7 +215,7 @@
         renderSummary(sheetName, summary);
       } catch (err) {
         console.error(err);
-        container.innerHTML = `<p style="color:red;">Gagal memuat data: ${escapeHtml(err.message)}</p>`;
+        container.innerHTML = `<p style="color:red;">Gagal memuat data sheet "${escapeHtml(sheetName)}": ${escapeHtml(err.message)}</p>`;
       }
     }
 
@@ -225,18 +223,21 @@
       const kelasSelect = document.getElementById('kelasSelect');
       const refreshBtn = document.getElementById('refreshBtn');
 
-      // Load sheet names
-      const sheetNames = await fetchSheetNames();
-      
-      kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>' + 
-        sheetNames.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+      // 1. Muat opsi kelas dari sheet Siswa
+      await loadKelasFromSiswaSheet();
 
+      // 2. Event listener
       kelasSelect.addEventListener('change', () => {
         loadSheet(kelasSelect.value);
       });
 
-      refreshBtn.addEventListener('click', () => {
-        loadSheet(kelasSelect.value);
+      refreshBtn.addEventListener('click', async () => {
+        const currentSelected = kelasSelect.value;
+        await loadKelasFromSiswaSheet();
+        kelasSelect.value = currentSelected;
+        if (currentSelected) {
+          loadSheet(currentSelected);
+        }
       });
     }
 
