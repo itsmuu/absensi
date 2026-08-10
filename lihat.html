@@ -7,7 +7,7 @@
   <style>
     body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; padding: 20px; background: #f8f9fa; color: #333; }
     .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    select, button, input { padding: 8px 12px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
+    select, button { padding: 8px 12px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
     button { background: #007bff; color: white; border: none; cursor: pointer; }
     button:hover { background: #0056b3; }
     table { border-collapse: collapse; width: 100%; margin-top: 16px; font-size: 14px; }
@@ -15,7 +15,6 @@
     th { background: #f1f3f5; font-weight: 600; }
     tr:nth-child(even) { background-color: #f9f9f9; }
     .muted { color: #666; font-size: 13px; }
-    .status-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 12px; text-transform: capitalize; }
   </style>
 </head>
 <body>
@@ -31,19 +30,19 @@
     <div id="summary" style="margin-top:16px"></div>
   </div>
 
-  <div class="card">
-    <h2>Petunjuk</h2>
-    <ul>
-      <li>Pastikan akses Spreadsheet diatur ke <strong>"Siapa saja yang memiliki link dapat melihat" (Public)</strong>.</li>
-      <li>Jika sheet baru ditambahkan di Google Spreadsheet, masukkan namanya di dropdown atau daftar sheet.</li>
-    </ul>
-  </div>
-
   <script>
     const SPREADSHEET_ID = '1foU4hKjM2QgOqsJbhEZYrjciVamT7LP8-YdUjPeVPfs';
 
-    // Daftar nama tab/sheet di Spreadsheet Anda (Jika menambahkan sheet baru, tambahkan di array ini)
-    const KNOWN_SHEETS = ['11A1', '11A2', '11A3', '11A4', '11A5', '11A6', '11A7', '11A8', '11A9', '11A10', 'Respon Formulir 1'];
+    // Nama tab disesuaikan persis dengan gambar Google Sheets Anda
+    const KNOWN_SHEETS = [
+      'Siswa',
+      'XI TKJ 3',
+      'XI TKJ 2',
+      'XII TKJ 3',
+      'XII TKJ 2',
+      '11 TKJ 3 salinan',
+      'XI TKJ 4'
+    ];
 
     function escapeHtml(str) {
       return String(str).replace(/[&<>"']/g, function(s) { 
@@ -51,7 +50,6 @@
       });
     }
 
-    // Mengambil data sheet menggunakan Google Visualization API (GViz)
     async function fetchSheetData(sheetName) {
       const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
       
@@ -59,8 +57,6 @@
       if (!res.ok) throw new Error(`Gagal memuat sheet "${sheetName}". Status: ${res.status}`);
       
       const text = await res.text();
-
-      // Extract JSON dari wrapper callback gviz
       const firstBrace = text.indexOf('{');
       const lastBrace = text.lastIndexOf('}');
       if (firstBrace === -1 || lastBrace === -1) throw new Error('Format respon Google Sheets tidak valid.');
@@ -72,15 +68,10 @@
       }
 
       const table = json.table;
-      
-      // Ambil header
       const headers = (table.cols || []).map(c => (c.label || c.id || '').trim());
-      
-      // Ambil data baris
       const rows = (table.rows || []).map(r => {
         return (r.c || []).map(cell => {
           if (!cell) return '';
-          // Gunakan formatted value (f) jika ada, jika tidak gunakan raw value (v)
           return cell.f !== undefined ? cell.f : (cell.v !== null && cell.v !== undefined ? cell.v : '');
         });
       });
@@ -88,17 +79,15 @@
       return { headers, rows };
     }
 
-    // Otomatis mendeteksi indeks kolom Nama & Status/Keterangan
     function detectColumns(headers) {
       const findIndex = (regex) => headers.findIndex(h => regex.test(h));
 
       let nameIdx = findIndex(/nama/i);
       let statusIdx = findIndex(/status|keterangan|ket|absensi|kehadiran/i);
 
-      // Fallback default jika header tidak terdeteksi via regex
       return {
-        nameIdx: nameIdx >= 0 ? nameIdx : 1,     // Kolom ke-2 (Indeks 1) biasa berisi Nama
-        statusIdx: statusIdx >= 0 ? statusIdx : 2 // Kolom ke-3 (Indeks 2) biasa berisi Status
+        nameIdx: nameIdx >= 0 ? nameIdx : 1,
+        statusIdx: statusIdx >= 0 ? statusIdx : 2
       };
     }
 
@@ -112,8 +101,8 @@
         const name = String(r[cols.nameIdx] || '').trim();
         let status = String(r[cols.statusIdx] || '').trim().toLowerCase();
 
-        if (!name) continue; // Abaikan baris kosong tanpa nama
-        if (!status) status = 'hadir'; // Default status jika kosong
+        if (!name) continue;
+        if (!status) status = 'hadir';
 
         if (!perStudent.has(name)) perStudent.set(name, {});
         
@@ -136,28 +125,24 @@
       }
 
       const wrap = document.createElement('div');
-      wrap.innerHTML = `<h3>Rekap Absensi Kelas: ${escapeHtml(sheetName)}</h3>`;
+      wrap.innerHTML = `<h3>Rekap Absensi: ${escapeHtml(sheetName)}</h3>`;
 
       const totals = summary.totals || {};
       const statusKeys = Object.keys(totals).sort((a, b) => totals[b] - totals[a]);
       const totalEntries = statusKeys.reduce((sum, k) => sum + totals[k], 0);
 
       if (totalEntries === 0) {
-        container.innerHTML = `<p class="muted">Tidak ada data absensi yang ditemukan pada sheet "${escapeHtml(sheetName)}".</p>`;
+        container.innerHTML = `<p class="muted">Tidak ada data absensi pada sheet "${escapeHtml(sheetName)}".</p>`;
         return;
       }
 
-      // Render Total Ringkasan
       const totDiv = document.createElement('div');
       totDiv.style.marginBottom = '12px';
       const statsDetail = statusKeys.map(k => `<strong>${escapeHtml(k.toUpperCase())}:</strong> ${totals[k]}`).join(' &nbsp;|&nbsp; ');
       totDiv.innerHTML = `<p><strong>Total Record:</strong> ${totalEntries} <br/> ${statsDetail}</p>`;
       wrap.appendChild(totDiv);
 
-      // Render Tabel Detail per Siswa
       const table = document.createElement('table');
-      
-      // Header Tabel
       const thead = document.createElement('thead');
       let headerRowHTML = '<tr><th>Nama Siswa</th>';
       statusKeys.forEach(s => {
@@ -167,7 +152,6 @@
       thead.innerHTML = headerRowHTML;
       table.appendChild(thead);
 
-      // Body Tabel
       const tbody = document.createElement('tbody');
       const sortedStudents = Array.from(summary.perStudent.entries()).sort((a, b) => a[0].localeCompare(b[0]));
 
@@ -197,7 +181,7 @@
       }
 
       try {
-        container.innerHTML = '<p class="muted">Memuat data dari Google Sheets...</p>';
+        container.innerHTML = '<p class="muted">Memuat data...</p>';
         const tableData = await fetchSheetData(sheetName);
         const cols = detectColumns(tableData.headers);
         const summary = summarizeData(tableData.rows, cols);
@@ -212,7 +196,6 @@
       const kelasSelect = document.getElementById('kelasSelect');
       const refreshBtn = document.getElementById('refreshBtn');
 
-      // Populate opsi dropdown
       kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>' + 
         KNOWN_SHEETS.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
 
@@ -225,7 +208,6 @@
       });
     }
 
-    // Jalankan aplikasi
     init();
   </script>
 </body>
