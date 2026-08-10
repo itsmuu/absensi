@@ -17,7 +17,7 @@
 <body>
   <h1>Rekap Absensi per Kelas</h1>
   <div class="card">
-    <p class="muted">Halaman ini mengambil data dari <code>index.html</code> (harus dapat di-fetch dari server yang sama) dan mencoba mendeteksi tabel absensi. Jika struktur tabel berbeda, ada penjelasan di bagian bawah untuk menyesuaikan.</p>
+    <p class="muted">Halaman ini mengambil data dari <code>index.html</code> (harus dapat di-fetch dari server yang sama) dan mencoba mendeteksi tabel absensi. Jika struktur tabel berbeda, ada penjela[...]
 
     <div>
       <label for="kelasSelect">Pilih Kelas:</label>
@@ -31,13 +31,17 @@
   <div class="card">
     <h2>Petunjuk</h2>
     <ul>
-      <li>Halaman ini akan mencoba menemukan tabel pada <code>index.html</code> yang berisi kolom <em>kelas</em>, <em>nama</em>, dan <em>status</em> (atau nama kolom serupa seperti "Keterangan", "Absensi").</li>
+      <li>Halaman ini akan mencoba menemukan tabel pada <code>index.html</code> yang berisi kolom <em>kelas</em>, <em>nama</em>, dan <em>status</em> (atau nama kolom serupa seperti "Keterangan", "Abse[...]
       <li>Jika tidak berhasil, pastikan file <code>index.html</code> berada di server yang sama dan tabel memiliki header yang jelas (contoh: "Kelas", "Nama", "Status").</li>
       <li>Jika format Anda berbeda, buka file ini dan sesuaikan heuristik deteksi kolom di bagian script (regex untuk header).</li>
     </ul>
   </div>
 
   <script>
+    // Jika Anda ingin mengambil dari Google Sheets publik, isi ID spreadsheet di bawah.
+    // Biarkan kosong ('') untuk menggunakan fallback: mencari tabel di index.html pada server yang sama.
+    const SPREADSHEET_ID = '1foU4hKjM2QgOqsJbhEZYrjciVamT7LP8-YdUjPeVPfs'; // dari link yang diberikan
+
     // Utility: cocokkan header dengan kata-kata kunci
     function findHeaderIndex(headers, regex) {
       for (let i = 0; i < headers.length; i++) {
@@ -149,29 +153,29 @@
       if (!kelas) { container.innerHTML = '<p class="muted">Pilih kelas untuk melihat rekap.</p>'; return; }
 
       const wrap = document.createElement('div');
-      wrap.innerHTML = `<h3>Rekap: ${kelas}</h3>`;
+      wrap.innerHTML = `<h3>Rekap: ${escapeHtml(kelas)}</h3>`;
 
       // Totals
       const totDiv = document.createElement('div');
       const totals = summary.totals || {};
       const totEntries = Object.keys(totals).sort((a,b)=>totals[b]-totals[a]);
-      totDiv.innerHTML = '<strong>Total entri:</strong> ' + (totEntries.reduce((s,k)=>s+totals[k],0)) + '<br/>' + totEntries.map(k => `${k}: ${totals[k]}`).join(' &nbsp; | &nbsp; ');
+      totDiv.innerHTML = '<strong>Total entri:</strong> ' + (totEntries.reduce((s,k)=>s+totals[k],0)) + '<br/>' + totEntries.map(k => `${escapeHtml(k)}: ${totals[k]}`).join(' &nbsp; | &nbsp; ');
       wrap.appendChild(totDiv);
 
       // Per student table
       const table = document.createElement('table');
       const th = document.createElement('thead');
       const headerRow = document.createElement('tr');
-      headerRow.innerHTML = '<th>Nama</th>' + totEntries.map(s => `<th>${s}</th>`).join('');
+      headerRow.innerHTML = '<th>Nama</th>' + totEntries.map(s => `<th>${escapeHtml(s)}</th>`).join('');
       th.appendChild(headerRow);
       table.appendChild(th);
 
       const tb = document.createElement('tbody');
       for (const [name, mapStatus] of Array.from(summary.perStudent.entries()).sort()) {
         const row = document.createElement('tr');
-        const cells = [`<td>${name}</td>`];
+        const cells = [`<td>${escapeHtml(name)}</td>`];
         for (const s of totEntries) {
-          cells.push(`<td>${mapStatus[s] || 0}</td>`);
+          cells.push(`<td>${escapeHtml(String(mapStatus[s] || 0))}</td>`);
         }
         row.innerHTML = cells.join('');
         tb.appendChild(row);
@@ -182,11 +186,77 @@
       container.appendChild(wrap);
     }
 
+    // --- Google Sheets helpers ---
+    async function listSheets() {
+      if (!SPREADSHEET_ID) throw new Error('SPREADSHEET_ID kosong');
+      const url = `https://spreadsheets.google.com/feeds/worksheets/${SPREADSHEET_ID}/public/basic?alt=json`;
+      const res = await fetch(url, {cache: 'no-store'});
+      if (!res.ok) throw new Error('Gagal mengambil daftar sheet: ' + res.status);
+      const j = await res.json();
+      const entries = (j.feed && j.feed.entry) || [];
+      return entries.map(e => e.title.$t);
+    }
+
+    async function fetchSheetAsTable(sheetName) {
+      if (!SPREADSHEET_ID) throw new Error('SPREADSHEET_ID kosong');
+      const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+      const res = await fetch(url, {cache: 'no-store'});
+      if (!res.ok) throw new Error('Gagal fetch sheet: ' + res.status);
+      const text = await res.text();
+
+      // parse payload google visualization: ambil JSON di dalam callback
+      const firstBrace = text.indexOf('{');
+      const lastBrace = text.lastIndexOf('}');
+      if (firstBrace === -1 || lastBrace === -1) throw new Error('Format response tidak dikenal');
+      const json = JSON.parse(text.slice(firstBrace, lastBrace + 1));
+      const table = json.table;
+      const headers = (table.cols || []).map(c => (c.label || '').trim());
+      const rows = (table.rows || []).map(r => (r.c || []).map(cell => cell && (cell.v ?? '') || ''));
+
+      return { headers, rows };
+    }
+
+    function detectColumns(headers) {
+      const find = (rx) => {
+        for (let i = 0; i < headers.length; i++) if (rx.test(headers[i] || '')) return i;
+        return -1;
+      };
+      const nameIdx = find(/nama|name/i);
+      const statusIdx = find(/status|keterangan|ket|absen|absensi/i);
+      return {
+        nameIdx: nameIdx >= 0 ? nameIdx : 0,
+        statusIdx: statusIdx >= 0 ? statusIdx : 1
+      };
+    }
+
+    function summarizeRows(rows, cols) {
+      const perStudent = new Map();
+      const totals = {};
+      for (const r of rows) {
+        const name = String(r[cols.nameIdx] || '(tanpa nama)').trim();
+        const status = String((r[cols.statusIdx] || 'hadir')).trim().toLowerCase();
+        if (!perStudent.has(name)) perStudent.set(name, {});
+        const m = perStudent.get(name);
+        m[status] = (m[status] || 0) + 1;
+        totals[status] = (totals[status] || 0) + 1;
+      }
+      return { perStudent, totals };
+    }
+
+    // escape utility
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"]+/g, function(s) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]); });
+    }
+
+    // init: try Google Sheets mode if SPREADSHEET_ID is set and accessible, otherwise fallback to index.html parsing
     async function init() {
       const kelasSelect = document.getElementById('kelasSelect');
       const refreshBtn = document.getElementById('refreshBtn');
 
-      async function load() {
+      let sheetMode = false;
+      let parsedData = null; // for index mode
+
+      async function loadIndexMode() {
         kelasSelect.innerHTML = '<option value="">-- memuat --</option>';
         try {
           const parsed = await loadAndParseIndex();
@@ -194,12 +264,12 @@
           if (classes.length === 0) {
             kelasSelect.innerHTML = '<option value="">(tidak ada data kelas)</option>';
             document.getElementById('summary').innerHTML = '<p class="muted">Tidak ada entri dengan kolom kelas terdeteksi.</p>';
+            parsedData = parsed.data;
             return;
           }
           kelasSelect.innerHTML = '<option value="">-- pilih --</option>' + classes.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
-
-          // simpan data ke elemen untuk render ulang cepat
           kelasSelect._parsedData = parsed.data;
+          parsedData = parsed.data;
           document.getElementById('summary').innerHTML = '<p class="muted">Pilih kelas untuk melihat rekap.</p>';
         } catch (err) {
           document.getElementById('summary').innerHTML = `<p class="muted">Gagal memuat data: ${escapeHtml(err.message || err)}</p>`;
@@ -207,21 +277,63 @@
         }
       }
 
-      kelasSelect.addEventListener('change', () => {
+      async function loadSheetListMode() {
+        kelasSelect.innerHTML = '<option value="">-- memuat --</option>';
+        try {
+          const sheets = await listSheets();
+          if (!sheets.length) {
+            kelasSelect.innerHTML = '<option value="">(tidak ada tab)</option>';
+            document.getElementById('summary').innerHTML = '<p class="muted">Spreadsheet tidak memiliki tab.</p>';
+            return;
+          }
+          kelasSelect.innerHTML = '<option value="">-- pilih --</option>' + sheets.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+          document.getElementById('summary').innerHTML = '<p class="muted">Pilih kelas (tab) untuk melihat rekap.</p>';
+        } catch (err) {
+          document.getElementById('summary').innerHTML = `<p class="muted">Gagal memuat daftar tab: ${escapeHtml(err.message || err)}</p>`;
+          kelasSelect.innerHTML = '<option value="">(error)</option>';
+          throw err;
+        }
+      }
+
+      kelasSelect.addEventListener('change', async () => {
         const k = kelasSelect.value;
-        const data = kelasSelect._parsedData || [];
-        if (!k) return renderSummary('', null);
-        const s = summarizeForClass(data, k);
-        renderSummary(k, s);
+        if (!k) return renderSummary('', { perStudent: new Map(), totals: {} });
+        if (sheetMode) {
+          // load sheet by name
+          try {
+            document.getElementById('summary').innerHTML = '<p class="muted">Memuat data...</p>';
+            const table = await fetchSheetAsTable(k);
+            const cols = detectColumns(table.headers);
+            const summary = summarizeRows(table.rows, cols);
+            renderSummary(k, summary);
+          } catch (err) {
+            document.getElementById('summary').innerHTML = `<p class="muted">Gagal memuat sheet: ${escapeHtml(err.message || err)}</p>`;
+          }
+        } else {
+          const data = parsedData || kelasSelect._parsedData || [];
+          const s = summarizeForClass(data, k);
+          renderSummary(k, s);
+        }
       });
 
-      refreshBtn.addEventListener('click', load);
+      refreshBtn.addEventListener('click', async () => {
+        if (sheetMode) await loadSheetListMode(); else await loadIndexMode();
+      });
 
-      await load();
-    }
-
-    function escapeHtml(str) {
-      return String(str).replace(/[&<>"]+/g, function(s) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]); });
+      // Decide mode
+      if (SPREADSHEET_ID) {
+        try {
+          await loadSheetListMode();
+          sheetMode = true;
+        } catch (err) {
+          // fail silently and fallback to index mode
+          console.warn('Google Sheets mode failed, fallback ke index.html mode:', err);
+          sheetMode = false;
+          await loadIndexMode();
+        }
+      } else {
+        await loadIndexMode();
+      }
     }
 
     // jalankan
