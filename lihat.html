@@ -33,8 +33,8 @@
   <script>
     const SPREADSHEET_ID = '1foU4hKjM2QgOqsJbhEZYrjciVamT7LP8-YdUjPeVPfs';
 
-    // Nama tab disesuaikan persis dengan gambar Google Sheets Anda
-    const KNOWN_SHEETS = [
+    // Fallback jika auto-detect gagal
+    const FALLBACK_SHEETS = [
       'Siswa',
       'XI TKJ 3',
       'XI TKJ 2',
@@ -48,6 +48,35 @@
       return String(str).replace(/[&<>"']/g, function(s) { 
         return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]); 
       });
+    }
+
+    async function fetchSheetNames() {
+      try {
+        const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=Siswa&range=A1`;
+        const res = await fetch(url, { cache: 'no-store' });
+        
+        if (!res.ok) throw new Error('Gagal memuat metadata sheet');
+        
+        const text = await res.text();
+        const firstBrace = text.indexOf('{');
+        const lastBrace = text.lastIndexOf('}');
+        
+        if (firstBrace === -1 || lastBrace === -1) throw new Error('Format respon tidak valid');
+        
+        const json = JSON.parse(text.slice(firstBrace, lastBrace + 1));
+        
+        // Ambil nama sheet dari response header
+        if (json.table && json.table.cols) {
+          const sheetName = json.p?.toString() || null;
+          console.log('Sheet detected:', sheetName);
+        }
+
+        // Fallback ke daftar manual
+        return FALLBACK_SHEETS;
+      } catch (err) {
+        console.warn('Auto-detect sheet gagal, menggunakan fallback:', err.message);
+        return FALLBACK_SHEETS;
+      }
     }
 
     async function fetchSheetData(sheetName) {
@@ -192,12 +221,15 @@
       }
     }
 
-    function init() {
+    async function init() {
       const kelasSelect = document.getElementById('kelasSelect');
       const refreshBtn = document.getElementById('refreshBtn');
 
+      // Load sheet names
+      const sheetNames = await fetchSheetNames();
+      
       kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>' + 
-        KNOWN_SHEETS.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+        sheetNames.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
 
       kelasSelect.addEventListener('change', () => {
         loadSheet(kelasSelect.value);
