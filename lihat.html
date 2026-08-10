@@ -2,27 +2,30 @@
 <html lang="id">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>View Absensi per Kelas</title>
   <style>
-    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; padding: 20px; }
-    .card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-    select, button { padding: 8px; font-size: 14px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 12px; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-    th { background: #f5f5f5; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; padding: 20px; background: #f8f9fa; color: #333; }
+    .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    select, button, input { padding: 8px 12px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
+    button { background: #007bff; color: white; border: none; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    table { border-collapse: collapse; width: 100%; margin-top: 16px; font-size: 14px; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+    th { background: #f1f3f5; font-weight: 600; }
+    tr:nth-child(even) { background-color: #f9f9f9; }
     .muted { color: #666; font-size: 13px; }
+    .status-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 12px; text-transform: capitalize; }
   </style>
 </head>
 <body>
   <h1>Rekap Absensi per Kelas</h1>
+  
   <div class="card">
-    <p class="muted">Halaman ini mengambil data dari <code>index.html</code> (harus dapat di-fetch dari server yang sama) dan mencoba mendeteksi tabel absensi. Jika struktur tabel berbeda, ada penjela[...]
-
     <div>
-      <label for="kelasSelect">Pilih Kelas:</label>
-      <select id="kelasSelect"><option value="">-- memuat --</option></select>
-      <button id="refreshBtn">Refresh data</button>
+      <label for="kelasSelect"><strong>Pilih Kelas / Sheet:</strong></label>
+      <select id="kelasSelect"><option value="">-- Memuat Data --</option></select>
+      <button id="refreshBtn">Refresh Data</button>
     </div>
 
     <div id="summary" style="margin-top:16px"></div>
@@ -31,312 +34,198 @@
   <div class="card">
     <h2>Petunjuk</h2>
     <ul>
-      <li>Halaman ini akan mencoba menemukan tabel pada <code>index.html</code> yang berisi kolom <em>kelas</em>, <em>nama</em>, dan <em>status</em> (atau nama kolom serupa seperti "Keterangan", "Abse[...]
-      <li>Jika tidak berhasil, pastikan file <code>index.html</code> berada di server yang sama dan tabel memiliki header yang jelas (contoh: "Kelas", "Nama", "Status").</li>
-      <li>Jika format Anda berbeda, buka file ini dan sesuaikan heuristik deteksi kolom di bagian script (regex untuk header).</li>
+      <li>Pastikan akses Spreadsheet diatur ke <strong>"Siapa saja yang memiliki link dapat melihat" (Public)</strong>.</li>
+      <li>Jika sheet baru ditambahkan di Google Spreadsheet, masukkan namanya di dropdown atau daftar sheet.</li>
     </ul>
   </div>
 
   <script>
-    // Jika Anda ingin mengambil dari Google Sheets publik, isi ID spreadsheet di bawah.
-    // Biarkan kosong ('') untuk menggunakan fallback: mencari tabel di index.html pada server yang sama.
-    const SPREADSHEET_ID = '1foU4hKjM2QgOqsJbhEZYrjciVamT7LP8-YdUjPeVPfs'; // dari link yang diberikan
+    const SPREADSHEET_ID = '1foU4hKjM2QgOqsJbhEZYrjciVamT7LP8-YdUjPeVPfs';
 
-    // Utility: cocokkan header dengan kata-kata kunci
-    function findHeaderIndex(headers, regex) {
-      for (let i = 0; i < headers.length; i++) {
-        if (regex.test(headers[i].trim())) return i;
-      }
-      return -1;
+    // Daftar nama tab/sheet di Spreadsheet Anda (Jika menambahkan sheet baru, tambahkan di array ini)
+    const KNOWN_SHEETS = ['11A1', '11A2', '11A3', '11A4', '11A5', '11A6', '11A7', '11A8', '11A9', '11A10', 'Respon Formulir 1'];
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, function(s) { 
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]); 
+      });
     }
 
-    async function loadAndParseIndex() {
-      const url = 'index.html';
-      try {
-        const res = await fetch(url, { cache: 'no-store' });
-        if (!res.ok) throw new Error('Gagal fetch: ' + res.status);
-        const text = await res.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(text, 'text/html');
-
-        // Cari tabel yang tampak seperti tabel absensi.
-        const tables = Array.from(doc.querySelectorAll('table'));
-        if (tables.length === 0) throw new Error('Tidak menemukan tabel di index.html');
-
-        // Pilih tabel yang headernya mengandung kata 'kelas' atau 'nama' atau 'status'
-        let chosen = null;
-        for (const t of tables) {
-          const ths = Array.from(t.querySelectorAll('thead th')).map(n => n.textContent || n.innerText || '');
-          if (ths.length === 0) {
-            // coba baris pertama sebagai header
-            const firstRow = t.querySelector('tr');
-            if (firstRow) {
-              const tds = Array.from(firstRow.querySelectorAll('td,th')).map(n => n.textContent || '');
-              if (tds.length > 0) ths.push(...tds);
-            }
-          }
-          const hasKelas = ths.some(h => /kelas|class/i.test(h));
-          const hasNama = ths.some(h => /nama|name/i.test(h));
-          const hasStatus = ths.some(h => /status|keterangan|ket|absen|absensi/i.test(h));
-          if ((hasKelas && hasNama) || (hasKelas && hasStatus)) { chosen = t; break; }
-        }
-        if (!chosen) chosen = tables[0]; // fallback
-
-        // Ambil header definitif
-        let headers = Array.from(chosen.querySelectorAll('thead th')).map(n => n.textContent || n.innerText || '');
-        if (headers.length === 0) {
-          // ambil dari baris pertama
-          const first = chosen.querySelector('tr');
-          if (first) headers = Array.from(first.querySelectorAll('td,th')).map(n => n.textContent || n.innerText || '');
-        }
-
-        // Ambil baris data (abaikan header jika diambil dari baris pertama)
-        let rows = Array.from(chosen.querySelectorAll('tbody tr'));
-        if (rows.length === 0) {
-          // jika tidak ada tbody, ambil semua tr dan skip header row jika header di baris pertama
-          rows = Array.from(chosen.querySelectorAll('tr'));
-          if (rows.length > 0 && headers.length > 0) rows = rows.slice(1);
-        }
-
-        const classIdx = findHeaderIndex(headers, /kelas|class/i);
-        const nameIdx = findHeaderIndex(headers, /nama|name/i);
-        const statusIdx = findHeaderIndex(headers, /status|keterangan|ket|absen|absensi/i);
-
-        // Jika tidak menemukan kolom, kita masih mencoba menebak: gunakan kolom ke-0/1/2
-        const detected = {
-          classIdx: classIdx >= 0 ? classIdx : 0,
-          nameIdx: nameIdx >= 0 ? nameIdx : 1,
-          statusIdx: statusIdx >= 0 ? statusIdx : 2
-        };
-
-        const data = [];
-        for (const r of rows) {
-          const cells = Array.from(r.querySelectorAll('td,th')).map(n => (n.textContent || '').trim());
-          if (cells.length === 0) continue;
-          const kelas = cells[detected.classIdx] || '';
-          const nama = cells[detected.nameIdx] || '';
-          const status = (cells[detected.statusIdx] || '').toLowerCase() || 'hadir';
-          data.push({ kelas: kelas.trim(), nama: nama.trim(), status: status.trim() });
-        }
-
-        return { headers, data };
-
-      } catch (err) {
-        console.error(err);
-        throw err;
-      }
-    }
-
-    function buildClassList(data) {
-      const set = new Set();
-      for (const r of data) if (r.kelas) set.add(r.kelas);
-      return Array.from(set).sort();
-    }
-
-    function summarizeForClass(data, kelas) {
-      const perStudent = new Map();
-      const totals = {};
-      for (const r of data) {
-        if (r.kelas !== kelas) continue;
-        const key = r.nama || '(tanpa nama)';
-        if (!perStudent.has(key)) perStudent.set(key, {});
-        const s = r.status || 'hadir';
-        perStudent.get(key)[s] = (perStudent.get(key)[s] || 0) + 1;
-        totals[s] = (totals[s] || 0) + 1;
-      }
-      return { perStudent, totals };
-    }
-
-    function renderSummary(kelas, summary) {
-      const container = document.getElementById('summary');
-      container.innerHTML = '';
-      if (!kelas) { container.innerHTML = '<p class="muted">Pilih kelas untuk melihat rekap.</p>'; return; }
-
-      const wrap = document.createElement('div');
-      wrap.innerHTML = `<h3>Rekap: ${escapeHtml(kelas)}</h3>`;
-
-      // Totals
-      const totDiv = document.createElement('div');
-      const totals = summary.totals || {};
-      const totEntries = Object.keys(totals).sort((a,b)=>totals[b]-totals[a]);
-      totDiv.innerHTML = '<strong>Total entri:</strong> ' + (totEntries.reduce((s,k)=>s+totals[k],0)) + '<br/>' + totEntries.map(k => `${escapeHtml(k)}: ${totals[k]}`).join(' &nbsp; | &nbsp; ');
-      wrap.appendChild(totDiv);
-
-      // Per student table
-      const table = document.createElement('table');
-      const th = document.createElement('thead');
-      const headerRow = document.createElement('tr');
-      headerRow.innerHTML = '<th>Nama</th>' + totEntries.map(s => `<th>${escapeHtml(s)}</th>`).join('');
-      th.appendChild(headerRow);
-      table.appendChild(th);
-
-      const tb = document.createElement('tbody');
-      for (const [name, mapStatus] of Array.from(summary.perStudent.entries()).sort()) {
-        const row = document.createElement('tr');
-        const cells = [`<td>${escapeHtml(name)}</td>`];
-        for (const s of totEntries) {
-          cells.push(`<td>${escapeHtml(String(mapStatus[s] || 0))}</td>`);
-        }
-        row.innerHTML = cells.join('');
-        tb.appendChild(row);
-      }
-      table.appendChild(tb);
-
-      wrap.appendChild(table);
-      container.appendChild(wrap);
-    }
-
-    // --- Google Sheets helpers ---
-    async function listSheets() {
-      if (!SPREADSHEET_ID) throw new Error('SPREADSHEET_ID kosong');
-      const url = `https://spreadsheets.google.com/feeds/worksheets/${SPREADSHEET_ID}/public/basic?alt=json`;
-      const res = await fetch(url, {cache: 'no-store'});
-      if (!res.ok) throw new Error('Gagal mengambil daftar sheet: ' + res.status);
-      const j = await res.json();
-      const entries = (j.feed && j.feed.entry) || [];
-      return entries.map(e => e.title.$t);
-    }
-
-    async function fetchSheetAsTable(sheetName) {
-      if (!SPREADSHEET_ID) throw new Error('SPREADSHEET_ID kosong');
+    // Mengambil data sheet menggunakan Google Visualization API (GViz)
+    async function fetchSheetData(sheetName) {
       const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
-      const res = await fetch(url, {cache: 'no-store'});
-      if (!res.ok) throw new Error('Gagal fetch sheet: ' + res.status);
+      
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Gagal memuat sheet "${sheetName}". Status: ${res.status}`);
+      
       const text = await res.text();
 
-      // parse payload google visualization: ambil JSON di dalam callback
+      // Extract JSON dari wrapper callback gviz
       const firstBrace = text.indexOf('{');
       const lastBrace = text.lastIndexOf('}');
-      if (firstBrace === -1 || lastBrace === -1) throw new Error('Format response tidak dikenal');
+      if (firstBrace === -1 || lastBrace === -1) throw new Error('Format respon Google Sheets tidak valid.');
+      
       const json = JSON.parse(text.slice(firstBrace, lastBrace + 1));
+      
+      if (json.status === 'error') {
+        throw new Error(json.errors[0]?.detailed_message || 'Gagal membaca sheet.');
+      }
+
       const table = json.table;
-      const headers = (table.cols || []).map(c => (c.label || '').trim());
-      const rows = (table.rows || []).map(r => (r.c || []).map(cell => cell && (cell.v ?? '') || ''));
+      
+      // Ambil header
+      const headers = (table.cols || []).map(c => (c.label || c.id || '').trim());
+      
+      // Ambil data baris
+      const rows = (table.rows || []).map(r => {
+        return (r.c || []).map(cell => {
+          if (!cell) return '';
+          // Gunakan formatted value (f) jika ada, jika tidak gunakan raw value (v)
+          return cell.f !== undefined ? cell.f : (cell.v !== null && cell.v !== undefined ? cell.v : '');
+        });
+      });
 
       return { headers, rows };
     }
 
+    // Otomatis mendeteksi indeks kolom Nama & Status/Keterangan
     function detectColumns(headers) {
-      const find = (rx) => {
-        for (let i = 0; i < headers.length; i++) if (rx.test(headers[i] || '')) return i;
-        return -1;
-      };
-      const nameIdx = find(/nama|name/i);
-      const statusIdx = find(/status|keterangan|ket|absen|absensi/i);
+      const findIndex = (regex) => headers.findIndex(h => regex.test(h));
+
+      let nameIdx = findIndex(/nama/i);
+      let statusIdx = findIndex(/status|keterangan|ket|absensi|kehadiran/i);
+
+      // Fallback default jika header tidak terdeteksi via regex
       return {
-        nameIdx: nameIdx >= 0 ? nameIdx : 0,
-        statusIdx: statusIdx >= 0 ? statusIdx : 1
+        nameIdx: nameIdx >= 0 ? nameIdx : 1,     // Kolom ke-2 (Indeks 1) biasa berisi Nama
+        statusIdx: statusIdx >= 0 ? statusIdx : 2 // Kolom ke-3 (Indeks 2) biasa berisi Status
       };
     }
 
-    function summarizeRows(rows, cols) {
+    function summarizeData(rows, cols) {
       const perStudent = new Map();
       const totals = {};
+
       for (const r of rows) {
-        const name = String(r[cols.nameIdx] || '(tanpa nama)').trim();
-        const status = String((r[cols.statusIdx] || 'hadir')).trim().toLowerCase();
+        if (!r || r.length === 0) continue;
+
+        const name = String(r[cols.nameIdx] || '').trim();
+        let status = String(r[cols.statusIdx] || '').trim().toLowerCase();
+
+        if (!name) continue; // Abaikan baris kosong tanpa nama
+        if (!status) status = 'hadir'; // Default status jika kosong
+
         if (!perStudent.has(name)) perStudent.set(name, {});
-        const m = perStudent.get(name);
-        m[status] = (m[status] || 0) + 1;
+        
+        const studentMap = perStudent.get(name);
+        studentMap[status] = (studentMap[status] || 0) + 1;
+
         totals[status] = (totals[status] || 0) + 1;
       }
+
       return { perStudent, totals };
     }
 
-    // escape utility
-    function escapeHtml(str) {
-      return String(str).replace(/[&<>"]+/g, function(s) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]); });
+    function renderSummary(sheetName, summary) {
+      const container = document.getElementById('summary');
+      container.innerHTML = '';
+
+      if (!sheetName) {
+        container.innerHTML = '<p class="muted">Pilih kelas untuk melihat rekap.</p>';
+        return;
+      }
+
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `<h3>Rekap Absensi Kelas: ${escapeHtml(sheetName)}</h3>`;
+
+      const totals = summary.totals || {};
+      const statusKeys = Object.keys(totals).sort((a, b) => totals[b] - totals[a]);
+      const totalEntries = statusKeys.reduce((sum, k) => sum + totals[k], 0);
+
+      if (totalEntries === 0) {
+        container.innerHTML = `<p class="muted">Tidak ada data absensi yang ditemukan pada sheet "${escapeHtml(sheetName)}".</p>`;
+        return;
+      }
+
+      // Render Total Ringkasan
+      const totDiv = document.createElement('div');
+      totDiv.style.marginBottom = '12px';
+      const statsDetail = statusKeys.map(k => `<strong>${escapeHtml(k.toUpperCase())}:</strong> ${totals[k]}`).join(' &nbsp;|&nbsp; ');
+      totDiv.innerHTML = `<p><strong>Total Record:</strong> ${totalEntries} <br/> ${statsDetail}</p>`;
+      wrap.appendChild(totDiv);
+
+      // Render Tabel Detail per Siswa
+      const table = document.createElement('table');
+      
+      // Header Tabel
+      const thead = document.createElement('thead');
+      let headerRowHTML = '<tr><th>Nama Siswa</th>';
+      statusKeys.forEach(s => {
+        headerRowHTML += `<th style="text-transform: capitalize;">${escapeHtml(s)}</th>`;
+      });
+      headerRowHTML += '</tr>';
+      thead.innerHTML = headerRowHTML;
+      table.appendChild(thead);
+
+      // Body Tabel
+      const tbody = document.createElement('tbody');
+      const sortedStudents = Array.from(summary.perStudent.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+
+      for (const [studentName, statusCounts] of sortedStudents) {
+        const row = document.createElement('tr');
+        let rowHTML = `<td><strong>${escapeHtml(studentName)}</strong></td>`;
+        
+        for (const s of statusKeys) {
+          const count = statusCounts[s] || 0;
+          rowHTML += `<td>${count}</td>`;
+        }
+        
+        row.innerHTML = rowHTML;
+        tbody.appendChild(row);
+      }
+
+      table.appendChild(tbody);
+      wrap.appendChild(table);
+      container.appendChild(wrap);
     }
 
-    // init: try Google Sheets mode if SPREADSHEET_ID is set and accessible, otherwise fallback to index.html parsing
-    async function init() {
+    async function loadSheet(sheetName) {
+      const container = document.getElementById('summary');
+      if (!sheetName) {
+        renderSummary('', { perStudent: new Map(), totals: {} });
+        return;
+      }
+
+      try {
+        container.innerHTML = '<p class="muted">Memuat data dari Google Sheets...</p>';
+        const tableData = await fetchSheetData(sheetName);
+        const cols = detectColumns(tableData.headers);
+        const summary = summarizeData(tableData.rows, cols);
+        renderSummary(sheetName, summary);
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = `<p style="color:red;">Gagal memuat data: ${escapeHtml(err.message)}</p>`;
+      }
+    }
+
+    function init() {
       const kelasSelect = document.getElementById('kelasSelect');
       const refreshBtn = document.getElementById('refreshBtn');
 
-      let sheetMode = false;
-      let parsedData = null; // for index mode
+      // Populate opsi dropdown
+      kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>' + 
+        KNOWN_SHEETS.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
 
-      async function loadIndexMode() {
-        kelasSelect.innerHTML = '<option value="">-- memuat --</option>';
-        try {
-          const parsed = await loadAndParseIndex();
-          const classes = buildClassList(parsed.data);
-          if (classes.length === 0) {
-            kelasSelect.innerHTML = '<option value="">(tidak ada data kelas)</option>';
-            document.getElementById('summary').innerHTML = '<p class="muted">Tidak ada entri dengan kolom kelas terdeteksi.</p>';
-            parsedData = parsed.data;
-            return;
-          }
-          kelasSelect.innerHTML = '<option value="">-- pilih --</option>' + classes.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
-          kelasSelect._parsedData = parsed.data;
-          parsedData = parsed.data;
-          document.getElementById('summary').innerHTML = '<p class="muted">Pilih kelas untuk melihat rekap.</p>';
-        } catch (err) {
-          document.getElementById('summary').innerHTML = `<p class="muted">Gagal memuat data: ${escapeHtml(err.message || err)}</p>`;
-          kelasSelect.innerHTML = '<option value="">(error)</option>';
-        }
-      }
-
-      async function loadSheetListMode() {
-        kelasSelect.innerHTML = '<option value="">-- memuat --</option>';
-        try {
-          const sheets = await listSheets();
-          if (!sheets.length) {
-            kelasSelect.innerHTML = '<option value="">(tidak ada tab)</option>';
-            document.getElementById('summary').innerHTML = '<p class="muted">Spreadsheet tidak memiliki tab.</p>';
-            return;
-          }
-          kelasSelect.innerHTML = '<option value="">-- pilih --</option>' + sheets.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
-          document.getElementById('summary').innerHTML = '<p class="muted">Pilih kelas (tab) untuk melihat rekap.</p>';
-        } catch (err) {
-          document.getElementById('summary').innerHTML = `<p class="muted">Gagal memuat daftar tab: ${escapeHtml(err.message || err)}</p>`;
-          kelasSelect.innerHTML = '<option value="">(error)</option>';
-          throw err;
-        }
-      }
-
-      kelasSelect.addEventListener('change', async () => {
-        const k = kelasSelect.value;
-        if (!k) return renderSummary('', { perStudent: new Map(), totals: {} });
-        if (sheetMode) {
-          // load sheet by name
-          try {
-            document.getElementById('summary').innerHTML = '<p class="muted">Memuat data...</p>';
-            const table = await fetchSheetAsTable(k);
-            const cols = detectColumns(table.headers);
-            const summary = summarizeRows(table.rows, cols);
-            renderSummary(k, summary);
-          } catch (err) {
-            document.getElementById('summary').innerHTML = `<p class="muted">Gagal memuat sheet: ${escapeHtml(err.message || err)}</p>`;
-          }
-        } else {
-          const data = parsedData || kelasSelect._parsedData || [];
-          const s = summarizeForClass(data, k);
-          renderSummary(k, s);
-        }
+      kelasSelect.addEventListener('change', () => {
+        loadSheet(kelasSelect.value);
       });
 
-      refreshBtn.addEventListener('click', async () => {
-        if (sheetMode) await loadSheetListMode(); else await loadIndexMode();
+      refreshBtn.addEventListener('click', () => {
+        loadSheet(kelasSelect.value);
       });
-
-      // Decide mode
-      if (SPREADSHEET_ID) {
-        try {
-          await loadSheetListMode();
-          sheetMode = true;
-        } catch (err) {
-          // fail silently and fallback to index mode
-          console.warn('Google Sheets mode failed, fallback ke index.html mode:', err);
-          sheetMode = false;
-          await loadIndexMode();
-        }
-      } else {
-        await loadIndexMode();
-      }
     }
 
-    // jalankan
+    // Jalankan aplikasi
     init();
   </script>
 </body>
