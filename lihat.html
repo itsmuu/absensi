@@ -3,58 +3,187 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>View Absensi per Kelas</title>
+  <title>Sistem Monitoring & Rekap Absensi Siswa</title>
   <style>
-    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; padding: 20px; background: #f8f9fa; color: #333; }
-    .card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    select, button { padding: 8px 12px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
-    button { background: #007bff; color: white; border: none; cursor: pointer; }
-    button:hover { background: #0056b3; }
-    table { border-collapse: collapse; width: 100%; margin-top: 16px; font-size: 14px; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-    th { background: #f1f3f5; font-weight: 600; }
-    tr:nth-child(even) { background-color: #f9f9f9; }
-    .muted { color: #666; font-size: 13px; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 24px;
+      background: #f4f6f9;
+      color: #333;
+      margin: 0;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { margin-top: 0; color: #1e293b; font-size: 24px; }
+    
+    .card {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    label { font-weight: 600; color: #475569; }
+    select, button {
+      padding: 10px 16px;
+      font-size: 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      outline: none;
+    }
+    select { min-width: 220px; background: white; cursor: pointer; }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #1d4ed8; }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .stat-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      text-align: center;
+    }
+    .stat-card .val { font-size: 22px; font-weight: 700; color: #0f172a; }
+    .stat-card .lbl { font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-top: 4px; }
+
+    /* Tabs */
+    .view-tabs {
+      display: flex;
+      border-bottom: 2px solid #e2e8f0;
+      margin-top: 20px;
+      margin-bottom: 16px;
+    }
+    .tab-btn {
+      padding: 10px 20px;
+      border: none;
+      background: none;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+    }
+    .tab-btn.active {
+      color: #2563eb;
+      border-bottom-color: #2563eb;
+    }
+
+    /* Tables */
+    .table-container { overflow-x: auto; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
+    th { background: #f1f5f9; font-weight: 600; color: #334155; }
+    tr:nth-child(even) { background-color: #f8fafc; }
+    
+    /* Badges Status Kehadiran */
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+    .badge-hadir { background: #dcfce7; color: #166534; }
+    .badge-sakit { background: #fef9c3; color: #854d0e; }
+    .badge-izin { background: #e0f2fe; color: #075985; }
+    .badge-alpa, .badge-tanpa-keterangan { background: #fee2e2; color: #991b1b; }
+
+    .muted { color: #64748b; font-size: 14px; }
+    .loading { color: #2563eb; font-weight: 600; }
+    .error { color: #dc2626; font-weight: 600; }
   </style>
 </head>
 <body>
-  <h1>Rekap Absensi per Kelas</h1>
-  
-  <div class="card">
-    <div>
-      <label for="kelasSelect"><strong>Pilih Kelas:</strong></label>
-      <select id="kelasSelect"><option value="">-- Memuat Data Kelas --</option></select>
-      <button id="refreshBtn">Refresh Data</button>
+
+  <div class="container">
+    <h1>Rekapitulasi & Detail Absensi Siswa</h1>
+
+    <div class="card">
+      <div class="controls">
+        <label for="sheetSelect">Pilih Kelas / Sheet:</label>
+        <select id="sheetSelect">
+          <option value="">-- Memuat Daftar Sheet... --</option>
+        </select>
+        <button id="refreshBtn">Refresh Data</button>
+      </div>
     </div>
 
-    <div id="summary" style="margin-top:16px"></div>
+    <div id="contentArea" class="card" style="display: none;">
+      <h2 id="sheetTitle" style="margin-top: 0; color: #1e293b;"></h2>
+      
+      <!-- Card Statistik -->
+      <div id="statGrid" class="stat-grid"></div>
+
+      <!-- Tab Navigasi View -->
+      <div class="view-tabs">
+        <button class="tab-btn active" onclick="switchView('rekap')">Rekap Per Siswa</button>
+        <button class="tab-btn" onclick="switchView('log')">Log Semua Absensi</button>
+      </div>
+
+      <!-- Area Tabel Rekap -->
+      <div id="rekapView" class="table-container"></div>
+
+      <!-- Area Tabel Log Absensi Lengkap -->
+      <div id="logView" class="table-container" style="display: none;"></div>
+    </div>
   </div>
 
   <script>
     const SPREADSHEET_ID = '1foU4hKjM2QgOqsJbhEZYrjciVamT7LP8-YdUjPeVPfs';
+    
+    // Daftar sheet sesuai data spreadsheet Anda
+    const KNOWN_SHEETS = [
+      'Siswa',
+      'XI TKJ 3',
+      'XI TKJ 2',
+      'XII TKJ 3',
+      'XII TKJ 2',
+      '11 TKJ 3 salinan',
+      'XI TKJ 4'
+    ];
+
+    let currentSheetData = null;
 
     function escapeHtml(str) {
-      return String(str).replace(/[&<>"']/g, function(s) { 
+      return String(str || '').replace(/[&<>"']/g, function(s) { 
         return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]); 
       });
     }
 
-    // Fungsi untuk mengambil data dari sheet tertentu
+    // Ambil data sheet via Google Visualization API JSON Endpoint
     async function fetchSheetData(sheetName) {
       const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
-      
       const res = await fetch(url, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`Gagal memuat sheet "${sheetName}". Status: ${res.status}`);
+      if (!res.ok) throw new Error(`Gagal memuat data dari sheet "${sheetName}". Status: ${res.status}`);
       
       const text = await res.text();
       const firstBrace = text.indexOf('{');
       const lastBrace = text.lastIndexOf('}');
-      if (firstBrace === -1 || lastBrace === -1) throw new Error('Format respon Google Sheets tidak valid.');
-      
+      if (firstBrace === -1 || lastBrace === -1) throw new Error('Respon data dari Google Sheets tidak valid.');
+
       const json = JSON.parse(text.slice(firstBrace, lastBrace + 1));
-      
       if (json.status === 'error') {
-        throw new Error(json.errors[0]?.detailed_message || 'Gagal membaca sheet.');
+        throw new Error(json.errors[0]?.detailed_message || 'Terjadi kesalahan saat membaca sheet.');
       }
 
       const table = json.table;
@@ -69,174 +198,214 @@
       return { headers, rows };
     }
 
-    // Ambil daftar kelas secara dinamis dari sheet "Siswa"
-    async function loadKelasFromSiswaSheet() {
-      const kelasSelect = document.getElementById('kelasSelect');
-      kelasSelect.innerHTML = '<option value="">-- Memuat Daftar Kelas... --</option>';
-
-      try {
-        const siswaData = await fetchSheetData('Siswa');
-        const headers = siswaData.headers;
-
-        // Cari kolom yang mengandung nama 'kelas'
-        let kelasIdx = headers.findIndex(h => /kelas/i.test(h));
-        if (kelasIdx === -1) kelasIdx = 2; // fallback ke kolom ke-3 jika header tidak terdeteksi
-
-        const kelasSet = new Set();
-        siswaData.rows.forEach(r => {
-          const val = String(r[kelasIdx] || '').trim();
-          if (val && !/kelas/i.test(val)) {
-            kelasSet.add(val);
-          }
-        });
-
-        const listKelas = Array.from(kelasSet).sort();
-
-        if (listKelas.length === 0) {
-          kelasSelect.innerHTML = '<option value="">-- Kelas Tidak Ditemukan --</option>';
-          return;
-        }
-
-        kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>' + 
-          listKelas.map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join('');
-
-      } catch (err) {
-        console.error(err);
-        kelasSelect.innerHTML = `<option value="">-- Gagal Memuat Kelas (${escapeHtml(err.message)}) --</option>`;
-      }
-    }
-
+    // Deteksi otomatis kolom Nama, Status Kehadiran, dan Tanggal/Waktu
     function detectColumns(headers) {
-      const findIndex = (regex) => headers.findIndex(h => regex.test(h));
+      const findIdx = (regex) => headers.findIndex(h => regex.test(h));
 
-      let nameIdx = findIndex(/nama/i);
-      let statusIdx = findIndex(/status|keterangan|ket|absensi|kehadiran/i);
+      let nameIdx = findIdx(/nama/i);
+      let statusIdx = findIdx(/status|keterangan|ket|absensi|kehadiran/i);
+      let dateIdx = findIdx(/tanggal|waktu|timestamp|tgl/i);
 
       return {
         nameIdx: nameIdx >= 0 ? nameIdx : 1,
-        statusIdx: statusIdx >= 0 ? statusIdx : 2
+        statusIdx: statusIdx >= 0 ? statusIdx : 2,
+        dateIdx: dateIdx >= 0 ? dateIdx : 0
       };
     }
 
-    function summarizeData(rows, cols) {
+    // Render Ringkasan Total Status Kehadiran
+    function renderStats(totals) {
+      const statGrid = document.getElementById('statGrid');
+      statGrid.innerHTML = '';
+
+      const keys = Object.keys(totals);
+      if (keys.length === 0) return;
+
+      let totalRecords = 0;
+      keys.forEach(k => totalRecords += totals[k]);
+
+      // Card Total
+      let html = `
+        <div class="stat-card">
+          <div class="val">${totalRecords}</div>
+          <div class="lbl">Total Catatan</div>
+        </div>
+      `;
+
+      keys.forEach(k => {
+        html += `
+          <div class="stat-card">
+            <div class="val">${totals[k]}</div>
+            <div class="lbl">${escapeHtml(k)}</div>
+          </div>
+        `;
+      });
+
+      statGrid.innerHTML = html;
+    }
+
+    // Render Tabel Rekapitulasi per Siswa
+    function renderRekapTable(rows, cols) {
+      const rekapView = document.getElementById('rekapView');
       const perStudent = new Map();
       const totals = {};
 
-      for (const r of rows) {
-        if (!r || r.length === 0) continue;
-
+      rows.forEach(r => {
+        if (!r || r.length === 0) return;
         const name = String(r[cols.nameIdx] || '').trim();
         let status = String(r[cols.statusIdx] || '').trim().toLowerCase();
 
-        if (!name) continue;
+        if (!name) return;
         if (!status) status = 'hadir';
 
         if (!perStudent.has(name)) perStudent.set(name, {});
-        
-        const studentMap = perStudent.get(name);
-        studentMap[status] = (studentMap[status] || 0) + 1;
+        const st = perStudent.get(name);
+        st[status] = (st[status] || 0) + 1;
 
         totals[status] = (totals[status] || 0) + 1;
-      }
-
-      return { perStudent, totals };
-    }
-
-    function renderSummary(sheetName, summary) {
-      const container = document.getElementById('summary');
-      container.innerHTML = '';
-
-      if (!sheetName) {
-        container.innerHTML = '<p class="muted">Pilih kelas untuk melihat rekap.</p>';
-        return;
-      }
-
-      const wrap = document.createElement('div');
-      wrap.innerHTML = `<h3>Rekap Absensi: ${escapeHtml(sheetName)}</h3>`;
-
-      const totals = summary.totals || {};
-      const statusKeys = Object.keys(totals).sort((a, b) => totals[b] - totals[a]);
-      const totalEntries = statusKeys.reduce((sum, k) => sum + totals[k], 0);
-
-      if (totalEntries === 0) {
-        container.innerHTML = `<p class="muted">Tidak ada data absensi pada sheet "${escapeHtml(sheetName)}".</p>`;
-        return;
-      }
-
-      const totDiv = document.createElement('div');
-      totDiv.style.marginBottom = '12px';
-      const statsDetail = statusKeys.map(k => `<strong>${escapeHtml(k.toUpperCase())}:</strong> ${totals[k]}`).join(' &nbsp;|&nbsp; ');
-      totDiv.innerHTML = `<p><strong>Total Record:</strong> ${totalEntries} <br/> ${statsDetail}</p>`;
-      wrap.appendChild(totDiv);
-
-      const table = document.createElement('table');
-      const thead = document.createElement('thead');
-      let headerRowHTML = '<tr><th>Nama Siswa</th>';
-      statusKeys.forEach(s => {
-        headerRowHTML += `<th style="text-transform: capitalize;">${escapeHtml(s)}</th>`;
       });
-      headerRowHTML += '</tr>';
-      thead.innerHTML = headerRowHTML;
-      table.appendChild(thead);
 
-      const tbody = document.createElement('tbody');
-      const sortedStudents = Array.from(summary.perStudent.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+      renderStats(totals);
 
-      for (const [studentName, statusCounts] of sortedStudents) {
-        const row = document.createElement('tr');
-        let rowHTML = `<td><strong>${escapeHtml(studentName)}</strong></td>`;
-        
-        for (const s of statusKeys) {
-          const count = statusCounts[s] || 0;
-          rowHTML += `<td>${count}</td>`;
-        }
-        
-        row.innerHTML = rowHTML;
-        tbody.appendChild(row);
-      }
+      const statusKeys = Object.keys(totals).sort();
+      const sortedStudents = Array.from(perStudent.entries()).sort((a, b) => a[0].localeCompare(b[0]));
 
-      table.appendChild(tbody);
-      wrap.appendChild(table);
-      container.appendChild(wrap);
-    }
-
-    async function loadSheet(sheetName) {
-      const container = document.getElementById('summary');
-      if (!sheetName) {
-        renderSummary('', { perStudent: new Map(), totals: {} });
+      if (sortedStudents.length === 0) {
+        rekapView.innerHTML = '<p class="muted">Tidak ada data absensi yang ditemukan pada sheet ini.</p>';
         return;
       }
+
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 50px;">No</th>
+              <th>Nama Siswa</th>
+      `;
+      statusKeys.forEach(s => {
+        html += `<th style="text-transform: capitalize; text-align: center;">${escapeHtml(s)}</th>`;
+      });
+      html += `</tr></thead><tbody>`;
+
+      sortedStudents.forEach(([studentName, counts], idx) => {
+        html += `
+          <tr>
+            <td style="text-align: center;">${idx + 1}</td>
+            <td><strong>${escapeHtml(studentName)}</strong></td>
+        `;
+        statusKeys.forEach(s => {
+          const count = counts[s] || 0;
+          html += `<td style="text-align: center;">${count > 0 ? count : '-'}</td>`;
+        });
+        html += `</tr>`;
+      });
+
+      html += `</tbody></table>`;
+      rekapView.innerHTML = html;
+    }
+
+    // Render Log Data Asli / Semua Baris Absensi
+    function renderLogTable(headers, rows) {
+      const logView = document.getElementById('logView');
+      
+      if (!rows || rows.length === 0) {
+        logView.innerHTML = '<p class="muted">Tidak ada log data absensi.</p>';
+        return;
+      }
+
+      let html = `<table><thead><tr>`;
+      headers.forEach(h => {
+        html += `<th>${escapeHtml(h || 'Kolom')}</th>`;
+      });
+      html += `</tr></thead><tbody>`;
+
+      rows.forEach(r => {
+        html += `<tr>`;
+        headers.forEach((_, colIdx) => {
+          const val = String(r[colIdx] || '').trim();
+          let cellContent = escapeHtml(val);
+
+          // Beri badge warna pada status kehadiran
+          const lowerVal = val.toLowerCase();
+          if (['hadir', 'sakit', 'izin', 'alpa'].includes(lowerVal)) {
+            cellContent = `<span class="badge badge-${lowerVal}">${escapeHtml(val)}</span>`;
+          }
+
+          html += `<td>${cellContent}</td>`;
+        });
+        html += `</tr>`;
+      });
+
+      html += `</tbody></table>`;
+      logView.innerHTML = html;
+    }
+
+    // Tampilkan Sheet yang Dipilih
+    async function loadSheet(sheetName) {
+      const contentArea = document.getElementById('contentArea');
+      const sheetTitle = document.getElementById('sheetTitle');
+      const rekapView = document.getElementById('rekapView');
+      const logView = document.getElementById('logView');
+
+      if (!sheetName) {
+        contentArea.style.display = 'none';
+        return;
+      }
+
+      contentArea.style.display = 'block';
+      sheetTitle.innerText = `Kelas / Sheet: ${sheetName}`;
+      rekapView.innerHTML = '<p class="loading">Memuat data absensi...</p>';
+      logView.innerHTML = '';
+      document.getElementById('statGrid').innerHTML = '';
 
       try {
-        container.innerHTML = '<p class="muted">Memuat data...</p>';
-        const tableData = await fetchSheetData(sheetName);
-        const cols = detectColumns(tableData.headers);
-        const summary = summarizeData(tableData.rows, cols);
-        renderSummary(sheetName, summary);
+        const { headers, rows } = await fetchSheetData(sheetName);
+        const cols = detectColumns(headers);
+
+        renderRekapTable(rows, cols);
+        renderLogTable(headers, rows);
       } catch (err) {
         console.error(err);
-        container.innerHTML = `<p style="color:red;">Gagal memuat data sheet "${escapeHtml(sheetName)}": ${escapeHtml(err.message)}</p>`;
+        rekapView.innerHTML = `<p class="error">Gagal menampilkan data: ${escapeHtml(err.message)}</p>`;
       }
     }
 
-    async function init() {
-      const kelasSelect = document.getElementById('kelasSelect');
+    // Switch Tab antara 'Rekap' dan 'Log'
+    function switchView(view) {
+      const rekapView = document.getElementById('rekapView');
+      const logView = document.getElementById('logView');
+      const tabs = document.querySelectorAll('.tab-btn');
+
+      if (view === 'rekap') {
+        rekapView.style.display = 'block';
+        logView.style.display = 'none';
+        tabs[0].classList.add('active');
+        tabs[1].classList.remove('active');
+      } else {
+        rekapView.style.display = 'none';
+        logView.style.display = 'block';
+        tabs[0].classList.remove('active');
+        tabs[1].classList.add('active');
+      }
+    }
+
+    // Inisialisasi Pilihan Sheet
+    function init() {
+      const select = document.getElementById('sheetSelect');
       const refreshBtn = document.getElementById('refreshBtn');
 
-      // 1. Muat opsi kelas dari sheet Siswa
-      await loadKelasFromSiswaSheet();
+      select.innerHTML = '<option value="">-- Pilih Kelas / Sheet --</option>' +
+        KNOWN_SHEETS.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
 
-      // 2. Event listener
-      kelasSelect.addEventListener('change', () => {
-        loadSheet(kelasSelect.value);
+      select.addEventListener('change', () => {
+        loadSheet(select.value);
       });
 
-      refreshBtn.addEventListener('click', async () => {
-        const currentSelected = kelasSelect.value;
-        await loadKelasFromSiswaSheet();
-        kelasSelect.value = currentSelected;
-        if (currentSelected) {
-          loadSheet(currentSelected);
+      refreshBtn.addEventListener('click', () => {
+        if (select.value) {
+          loadSheet(select.value);
+        } else {
+          alert('Pilih kelas/sheet terlebih dahulu.');
         }
       });
     }
