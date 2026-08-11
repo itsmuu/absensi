@@ -44,8 +44,6 @@
     .small-muted{color:var(--text-sub);font-size:13px}
     .details-row{background:rgba(0,0,0,0.02)}
     .export-actions{margin-left:auto;display:flex;gap:8px}
-    .error-msg{color:#dc2626;padding:10px;background:rgba(220,38,38,0.1);border-radius:8px;margin:8px 0}
-    .success-msg{color:#16a34a;padding:10px;background:rgba(22,163,74,0.1);border-radius:8px;margin:8px 0}
     @media(max-width:720px){.controls{flex-direction:column}.export-actions{margin-left:0;width:100%}}
   </style>
 </head>
@@ -62,7 +60,7 @@
 
 <div class="container">
   <h2>Rekap Absensi</h2>
-  <p class="sub">Lihat ringkasan kehadiran per kelas dan per tanggal. Data diambil dari API yang sama dengan halaman input.</p>
+  <p class="sub">Lihat ringkasan kehadiran per kelas dan per tanggal. Data diambil dari Speedsheet API.</p>
 
   <div class="controls">
     <select id="filterKelas">
@@ -97,8 +95,8 @@
 </div>
 
 <script>
-  // Gunakan API yang sama seperti index.html
-  const API_URL = "https://script.google.com/macros/s/AKfycbyBlg-Ph-wx68KNHsoFJMHlzY_aCbRZHNLgtAnbnI-e_0c_rAKVEOv9upsvjToMhuaRmw/exec";
+  // Gunakan API Speedsheet
+  const API_URL = "https://script.google.com/macros/s/AKfycbwLY30Nz3rqBbka4bpzhIPMlIWRCh5sMSgKl-uSrtGMA6jh15oahR4uJnNduWQogBz4kQ/exec";
 
   let rawRecords = []; // bentuk array record {kelas, nama, tanggal, status}
   let classes = new Set();
@@ -111,19 +109,20 @@
   });
 
   function loadRekap(){
-    setInfo('Memuat data rekap...');
-    console.log('Fetching from:', API_URL);
+    setInfo('Memuat data rekap dari Speedsheet...');
+    console.log('Fetching from Speedsheet API:', API_URL);
     
     // Tambah timeout untuk fetch
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
 
     fetch(`${API_URL}?action=getRekapAbsensi`, { 
       method: 'GET',
       signal: controller.signal,
       headers: {
         'Accept': 'application/json'
-      }
+      },
+      mode: 'cors'
     })
     .then(r => {
       clearTimeout(timeoutId);
@@ -132,13 +131,23 @@
       return r.json();
     })
     .then(res => {
-      console.log('API Response:', res);
+      console.log('Speedsheet API Response:', res);
+      
+      // Handle jika response langsung berupa array
+      if(Array.isArray(res)){
+        console.log('Data format: direct array from Speedsheet');
+        rawRecords = res.map(r => normalizeRecord(r));
+        populateClassFilter();
+        buildAggregatedTable();
+        return;
+      }
+      
+      // Handle jika ada wrapper
       if(res && res.status === 'success' && res.data){
-        // Mendukung dua bentuk respons:
+        // Mendukung berbagai bentuk respons:
         // 1) res.data.records = [ {kelas,nama,tanggal,status}, ... ]
         // 2) res.data = [ {kelas, tanggal, hadir, sakit, izin, alpha, total}, ... ] (sudah ter-rekap)
         if(Array.isArray(res.data)){
-          // asumsi sudah ter-rekap
           console.log('Data format: pre-aggregated array');
           rawRecords = res.data;
           buildTableFromSummaryArray(rawRecords);
@@ -154,7 +163,7 @@
           buildAggregatedTable();
         } else {
           console.warn('Unknown data format:', res.data);
-          setInfo('⚠️ Format data tidak dikenal. Pastikan Apps Script endpoint mengirim: {status:"success", data:[...]} atau {status:"success", data:{records:[...]}}');
+          setInfo('⚠️ Format data tidak dikenal dari Speedsheet API.');
         }
       } else {
         const errorMsg = res && res.message ? res.message : 'Respons tidak valid';
@@ -166,24 +175,25 @@
       clearTimeout(timeoutId);
       console.error('Fetch Error:', err);
       
-      let errorMsg = 'Gagal terhubung ke API.';
+      let errorMsg = 'Gagal terhubung ke API Speedsheet.';
       if(err.name === 'AbortError') {
-        errorMsg = 'Request timeout - API tidak merespons dalam 10 detik.';
+        errorMsg = '⏱️ Request timeout - API Speedsheet tidak merespons dalam 15 detik.';
       } else if(err.message.includes('Failed to fetch')) {
-        errorMsg = 'CORS Error atau API tidak dapat diakses. Pastikan:\n1. Apps Script sudah di-deploy sebagai web app\n2. "Who has access" diatur ke "Anyone, even anonymous"\n3. Apps Script menambahkan CORS headers';
+        errorMsg = '❌ Network error atau CORS blocked. Cek koneksi internet.';
       }
-      setInfo('❌ ' + errorMsg);
+      setInfo(errorMsg);
       console.log('Debug Info - API_URL:', API_URL);
+      console.log('Full Error:', err);
     });
   }
 
   function normalizeRecord(r){
     // Pastikan properti tersedia dan tanggal dalam format YYYY-MM-DD
     return {
-      kelas: r.kelas || r.class || r.kelas_nama || '',
-      nama: r.nama || r.name || r.siswa || '',
-      tanggal: formatDateString(r.tanggal || r.date || r.created_at || r.tgl),
-      status: r.status || r.keterangan || ''
+      kelas: r.kelas || r.class || r.kelas_nama || r.Kelas || '',
+      nama: r.nama || r.name || r.siswa || r.Nama || r.Siswa || '',
+      tanggal: formatDateString(r.tanggal || r.date || r.created_at || r.tgl || r.Tanggal || r.Tgl || ''),
+      status: r.status || r.keterangan || r.Status || r.Keterangan || ''
     };
   }
 
@@ -193,11 +203,11 @@
     if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
     // Jika ISO
     let d = new Date(s);
-    if(!isNaN(d)){
+    if(!isNaN(d) && d.toString() !== 'Invalid Date'){
       return d.toISOString().slice(0,10);
     }
     // coba parsing dd/mm/yyyy
-    let parts = s.split('/');
+    let parts = String(s).split('/');
     if(parts.length===3){
       return parts[2].padStart(4,'0') + '-' + parts[1].padStart(2,'0') + '-' + parts[0].padStart(2,'0');
     }
@@ -285,9 +295,8 @@
   }
 
   function toggleDetails(idx, rowData){
-    // jika belum memiliki details, tidak ada yang ditampilkan
     const tbody = document.getElementById('summaryBody');
-    // Hapus semua baris details (class details-row)
+    // Hapus semua baris details yang ada
     Array.from(tbody.querySelectorAll('.details-row')).forEach(el => el.remove());
 
     if(!rowData.details || rowData.details.length===0) return;
