@@ -137,13 +137,6 @@
     .btn-blue:active { transform: scale(0.98); }
     .btn-blue:disabled { background-color: #94a3b8; cursor: not-allowed; }
 
-    /* Helper info text below filters */
-    .filter-prompt-text {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      margin-top: 8px;
-    }
-
     /* Info Bar & Table */
     .info-bar {
       display: flex;
@@ -218,17 +211,81 @@
 
     /* States Display */
     .state-box { text-align: center; padding: 30px 20px; color: var(--text-muted); }
-    .spinner {
-      border: 3px solid #f3f3f3; border-top: 3px solid var(--primary);
-      border-radius: 50%; width: 28px; height: 28px; animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+
+    /* =========================================================
+       ANIMASI LOADING MODERN (SPINNER + SKELETON)
+       ========================================================= */
+    .fade-in {
+      animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+    }
+
+    .spinner-ring {
+      display: inline-block;
+      width: 42px;
+      height: 42px;
+      border: 4px solid #e2e8f0;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+      margin-bottom: 12px;
+    }
+    @keyframes spin { 
+      0% { transform: rotate(0deg); } 
+      100% { transform: rotate(360deg); } 
+    }
+
+    .loading-text {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+    .loading-subtext {
+      font-size: 0.825rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    /* Skeleton Loading Placeholder */
+    .skeleton-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    .skeleton-row td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .skeleton-box {
+      height: 16px;
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px;
+      display: inline-block;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
     .hidden { display: none !important; }
 
     /* Print Styles */
     @media print {
       body { background: #fff; }
-      .navbar, .filter-action-row, .filter-prompt-text, .btn-detail { display: none !important; }
+      .navbar, .filter-action-row, .btn-detail { display: none !important; }
       .card { box-shadow: none; border: none; padding: 0; }
       .main-container { max-width: 100%; margin: 0; padding: 0; }
       th, td { border: 1px solid #000 !important; }
@@ -252,11 +309,12 @@
   <div class="main-container">
     <div class="card">
       <h2 class="card-title">Rekap Absensi</h2>
-  <!-- Filter and Action Buttons Row -->
+
+      <!-- Filter and Action Buttons Row -->
       <div class="filter-action-row">
         <div class="filter-controls">
           <select id="selectRombel" disabled>
-            <option value="">-- Pilih Kelas --</option>
+            <option value="">-- Memuat daftar kelas... --</option>
           </select>
           
           <input type="date" id="filterTanggal" title="Pilih Tanggal Spesifik (Opsional)">
@@ -270,20 +328,68 @@
         </div>
       </div>
 
-     
-
-      <!-- State 1: Loading Data -->
-      <div id="stateLoading" class="state-box hidden">
-        <div class="spinner"></div>
-        <p>Menghitung rekap absensi...</p>
+      <!-- State 1: Prompt Awal / Belum Pilih -->
+      <div id="statePrompt" class="state-box">
+        <p>Silakan pilih kelas terlebih dahulu untuk melihat rekap absensi.</p>
       </div>
 
-      <!-- State 2: Data Kosong -->
+      <!-- State 2: Loading Data Dengan Animasi Spinner & Skeleton -->
+      <div id="stateLoading" class="state-box hidden">
+        <div class="loading-container">
+          <div class="spinner-ring"></div>
+          <div class="loading-text">Menghubungkan ke Google Sheets...</div>
+          <div class="loading-subtext">Mengambil data kehadiran & tanggal rekap terbaru</div>
+        </div>
+
+        <!-- Skeleton Preview Table Effect -->
+        <div class="table-container" style="border: 1px dashed var(--border);">
+          <table class="skeleton-table">
+            <thead>
+              <tr>
+                <th style="width: 50px;">No</th>
+                <th class="text-left">Nama Siswa</th>
+                <th style="width: 100px;">Hadir</th>
+                <th style="width: 100px;">Sakit</th>
+                <th style="width: 100px;">Izin</th>
+                <th style="width: 100px;">Alpa</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="skeleton-row">
+                <td class="text-center"><span class="skeleton-box" style="width: 15px;"></span></td>
+                <td><span class="skeleton-box" style="width: 70%;"></span></td>
+                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
+                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
+                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
+                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
+              </tr>
+              <tr class="skeleton-row">
+                <td class="text-center"><span class="skeleton-box" style="width: 15px;"></span></td>
+                <td><span class="skeleton-box" style="width: 55%;"></span></td>
+                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
+                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
+                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
+                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
+              </tr>
+              <tr class="skeleton-row">
+                <td class="text-center"><span class="skeleton-box" style="width: 15px;"></span></td>
+                <td><span class="skeleton-box" style="width: 80%;"></span></td>
+                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
+                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
+                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
+                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- State 3: Data Kosong -->
       <div id="stateEmpty" class="state-box hidden">
         <p>Tidak ada data absensi untuk filter ini.</p>
       </div>
 
-      <!-- State 3: Tabel Rekap Hasil -->
+      <!-- State 4: Tabel Rekap Hasil -->
       <div id="stateData" class="hidden">
         <div class="info-bar">
           <span class="info-count" id="infoKelas">Kelas: -</span>
@@ -336,7 +442,8 @@
     // DOM Elements
     const selectRombel = document.getElementById('selectRombel');
     const filterTanggal = document.getElementById('filterTanggal');
-    const filterPrompt = document.getElementById('filterPrompt');
+    const btnFilter = document.getElementById('btnFilter');
+    const statePrompt = document.getElementById('statePrompt');
     const stateLoading = document.getElementById('stateLoading');
     const stateEmpty = document.getElementById('stateEmpty');
     const stateData = document.getElementById('stateData');
@@ -382,6 +489,7 @@
 
       selectedRombelGlobal = selectedRombel;
       showState('loading');
+      btnFilter.disabled = true;
 
       try {
         const response = await fetch(API_URL, {
@@ -406,6 +514,8 @@
       } catch (err) {
         console.error(err);
         showState('empty');
+      } finally {
+        btnFilter.disabled = false;
       }
     }
 
@@ -539,7 +649,6 @@
       let csvContent = "data:text/csv;charset=utf-8,No,Nama Siswa,Hadir,Sakit,Izin,Alpa\n";
 
       rawAbsensiData.forEach((item, index) => {
-        // Ambil jumlah
         const rowData = [
           index + 1,
           `"${item.nama}"`,
@@ -569,17 +678,25 @@
       window.print();
     }
 
-    // Helper State Visibility
+    // Helper State Visibility dengan Animasi Transisi Fade-In
     function showState(state) {
-      filterPrompt.classList.add('hidden');
-      stateLoading.classList.add('hidden');
-      stateEmpty.classList.add('hidden');
-      stateData.classList.add('hidden');
+      [statePrompt, stateLoading, stateEmpty, stateData].forEach(el => {
+        el.classList.add('hidden');
+        el.classList.remove('fade-in');
+      });
 
-      if (state === 'prompt') filterPrompt.classList.remove('hidden');
-      if (state === 'loading') stateLoading.classList.remove('hidden');
-      if (state === 'empty') stateEmpty.classList.remove('hidden');
-      if (state === 'data') stateData.classList.remove('hidden');
+      let activeEl = null;
+      if (state === 'prompt') activeEl = statePrompt;
+      if (state === 'loading') activeEl = stateLoading;
+      if (state === 'empty') activeEl = stateEmpty;
+      if (state === 'data') activeEl = stateData;
+
+      if (activeEl) {
+        activeEl.classList.remove('hidden');
+        // Trigger animasi fade-in
+        void activeEl.offsetWidth;
+        activeEl.classList.add('fade-in');
+      }
     }
   </script>
 </body>
