@@ -2,315 +2,590 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Rekap Absensi - Hadirmu</title>
-  <!-- Font Poppins -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hadirmu - Rekap Absensi</title>
   <style>
-    :root{
-      --primary-color: #0284c7;
-      --bg-color: #f1f5f9;
-      --header-bg: #ffffff;
-      --text-color: #0f172a;
-      --text-sub: #64748b;
-      --card-bg: rgba(255,255,255,0.85);
-      --border-line: #e2e8f0;
+    :root {
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --bg-page: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      
+      /* Status Colors */
+      --color-hadir: #166534; --bg-hadir: #dcfce7;
+      --color-sakit: #854d0e; --bg-sakit: #fef9c3;
+      --color-izin:  #075985; --bg-izin:  #e0f2fe;
+      --color-alpa:  #991b1b; --bg-alpa:  #fee2e2;
     }
-    [data-theme="dark"]{
-      --primary-color: #38bdf8;
-      --bg-color: #0f172a;
-      --header-bg: #1e293b;
-      --text-color: #f8fafc;
-      --text-sub: #94a3b8;
-      --card-bg: rgba(30,41,59,0.85);
-      --border-line: #334155;
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg-page); color: var(--text-main); line-height: 1.5; min-height: 100vh; }
+
+    /* Top Navigation Bar */
+    .navbar {
+      background-color: #ffffff;
+      padding: 16px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      margin-bottom: 32px;
     }
-    *{box-sizing:border-box}
-    body{font-family:'Poppins',sans-serif;background:var(--bg-color);color:var(--text-color);margin:0;padding:0;display:flex;flex-direction:column;align-items:center;min-height:100vh}
-    header{width:100%;background:var(--header-bg);padding:12px 0;position:sticky;top:0;border-bottom:1px solid var(--border-line);z-index:600}
-    .navbar-container{width:90%;max-width:1100px;margin:auto;display:flex;justify-content:space-between;align-items:center}
-    .logo-icon{display:flex;align-items:center;justify-content:center;width:42px;height:42px;background:transparent;border-radius:12px;color:var(--primary-color);text-decoration:none}
-    .container{width:calc(100% - 32px);max-width:1100px;margin:24px auto;padding:20px;background:var(--card-bg);border-radius:16px;border:1px solid var(--border-line)}
-    h2{margin:0;font-size:20px}
-    p.sub{margin:6px 0 0;color:var(--text-sub);font-size:13px}
-    .controls{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0 18px}
-    select,input[type=date]{padding:10px 12px;border-radius:10px;border:1px solid var(--border-line);background:var(--header-bg);color:var(--text-color)}
-    .btn{padding:10px 12px;border-radius:10px;border:none;background:var(--primary-color);color:#fff;cursor:pointer;font-weight:600}
-    .summary-table{width:100%;border-collapse:collapse;margin-top:10px}
-    .summary-table th,.summary-table td{padding:8px 10px;border-bottom:1px solid var(--border-line);text-align:left}
-    .summary-table th{background:transparent;font-weight:600}
-    .small-muted{color:var(--text-sub);font-size:13px}
-    .details-row{background:rgba(0,0,0,0.02)}
-    .export-actions{margin-left:auto;display:flex;gap:8px}
-    @media(max-width:720px){.controls{flex-direction:column}.export-actions{margin-left:0;width:100%}}
+    .navbar-brand-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.5rem;
+    }
+    .navbar-brand-right {
+      text-align: right;
+    }
+    .brand-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.2;
+    }
+    .brand-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Container Card */
+    .main-container {
+      max-width: 1140px;
+      margin: 0 auto 40px auto;
+      padding: 0 16px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      padding: 32px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .card-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+    }
+
+    /* Filter Action Row */
+    .filter-action-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .filter-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .action-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    select, input[type="date"] {
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      outline: none;
+      background: #ffffff;
+      color: var(--text-main);
+      transition: border-color 0.2s;
+    }
+    select:focus, input[type="date"]:focus { border-color: var(--primary); }
+
+    select { min-width: 260px; cursor: pointer; }
+    input[type="date"] { min-width: 150px; cursor: pointer; }
+
+    /* Blue Buttons */
+    .btn-blue {
+      background-color: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+    .btn-blue:hover { background-color: var(--primary-hover); }
+    .btn-blue:active { transform: scale(0.98); }
+    .btn-blue:disabled { background-color: #94a3b8; cursor: not-allowed; }
+
+    /* Helper info text below filters */
+    .filter-prompt-text {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+
+    /* Info Bar & Table */
+    .info-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      margin-bottom: 12px;
+    }
+    .info-count {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-top: 12px;
+    }
+
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+    th, td { padding: 12px 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    th { background-color: #f8fafc; font-weight: 600; text-align: center; color: #334155; }
+
+    .text-center { text-align: center; }
+    .text-left { text-align: left; }
+
+    /* Status Badges */
+    .badge {
+      display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+      padding: 4px 10px; border-radius: 20px; font-weight: 600; font-size: 0.85rem;
+    }
+    .badge-hadir { background: var(--bg-hadir); color: var(--color-hadir); }
+    .badge-sakit { background: var(--bg-sakit); color: var(--color-sakit); }
+    .badge-izin  { background: var(--bg-izin);  color: var(--color-izin);  }
+    .badge-alpa  { background: var(--bg-alpa);  color: var(--color-alpa);  }
+
+    .btn-detail {
+      background: none; border: none; cursor: pointer; display: inline-flex;
+      align-items: center; justify-content: center; width: 22px; height: 22px;
+      border-radius: 50%; background-color: rgba(0, 0, 0, 0.08);
+      color: inherit; transition: background 0.2s; margin-left: 4px;
+    }
+    .btn-detail:hover { background-color: rgba(0, 0, 0, 0.2); }
+    .btn-detail svg { width: 13px; height: 13px; fill: currentColor; }
+
+    /* Modal / Pop-up Detail Tanggal */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.5); display: flex; align-items: center;
+      justify-content: center; z-index: 999; opacity: 0; pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-box {
+      background: #fff; width: 90%; max-width: 400px; border-radius: 12px;
+      padding: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
+      transform: translateY(10px); transition: transform 0.2s ease;
+    }
+    .modal-overlay.active .modal-box { transform: translateY(0); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .modal-header h3 { font-size: 1.1rem; color: var(--text-main); }
+    .modal-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-muted); }
+    .modal-body { font-size: 0.9rem; color: var(--text-main); max-height: 250px; overflow-y: auto; }
+    
+    .date-list { list-style: none; padding: 0; margin-top: 8px; }
+    .date-list li {
+      padding: 8px 12px; background: #f8fafc; border: 1px solid var(--border);
+      border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between;
+    }
+
+    /* States Display */
+    .state-box { text-align: center; padding: 30px 20px; color: var(--text-muted); }
+    .spinner {
+      border: 3px solid #f3f3f3; border-top: 3px solid var(--primary);
+      border-radius: 50%; width: 28px; height: 28px; animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .hidden { display: none !important; }
+
+    /* Print Styles */
+    @media print {
+      body { background: #fff; }
+      .navbar, .filter-action-row, .filter-prompt-text, .btn-detail { display: none !important; }
+      .card { box-shadow: none; border: none; padding: 0; }
+      .main-container { max-width: 100%; margin: 0; padding: 0; }
+      th, td { border: 1px solid #000 !important; }
+    }
   </style>
 </head>
 <body>
-<header>
-  <div class="navbar-container">
-    <a href="/" class="logo-icon" title="Home">📋</a>
-    <div>
-      <strong>Hadirmu</strong>
-      <div class="small-muted">Rekap Absensi</div>
+
+  <!-- Top Navbar -->
+  <div class="navbar">
+    <div class="navbar-brand-left">
+      <span>📋</span>
     </div>
-  </div>
-</header>
-
-<div class="container">
-  <h2>Rekap Absensi</h2>
-  <p class="sub">Lihat ringkasan kehadiran per kelas dan per tanggal dari Google Sheets.</p>
-
-  <div class="controls">
-    <select id="filterKelas">
-      <option value="">-- Pilih Kelas untuk Melihat Rekap --</option>
-    </select>
-
-    <input type="date" id="filterDate" />
-
-    <button class="btn" id="btnApply">Terapkan Filter</button>
-
-    <div class="export-actions">
-      <button class="btn" id="btnExportCSV">Ekspor CSV</button>
-      <button class="btn" id="btnPrint">Cetak</button>
+    <div class="navbar-brand-right">
+      <div class="brand-title">Hadirmu</div>
+      <div class="brand-subtitle">Rekap Absensi</div>
     </div>
   </div>
 
-  <div id="info" class="small-muted">Memuat data kelas...</div>
-  <table class="summary-table" id="summaryTable" style="display:none">
-    <thead>
-      <tr>
-        <th>Tanggal</th>
-        <th>Kelas</th>
-        <th>Hadir</th>
-        <th>Sakit</th>
-        <th>Izin</th>
-        <th>Alpha</th>
-        <th>Total</th>
-      </tr>
-    </thead>
-    <tbody id="summaryBody"></tbody>
-  </table>
-</div>
+  <!-- Main Container -->
+  <div class="main-container">
+    <div class="card">
+      <h2 class="card-title">Rekap Absensi</h2>
+      <p class="card-subtitle">Lihat ringkasan kehadiran per kelas dan per tanggal dari Google Sheets.</p>
 
-<script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbwLY30Nz3rqBbka4bpzhIPMlIWRCh5sMSgKl-uSrtGMA6jh15oahR4uJnNduWQogBz4kQ/exec";
+      <!-- Filter and Action Buttons Row -->
+      <div class="filter-action-row">
+        <div class="filter-controls">
+          <select id="selectRombel" disabled>
+            <option value="">-- Pilih Kelas untuk Melihat Rekap --</option>
+          </select>
+          
+          <input type="date" id="filterTanggal" title="Pilih Tanggal Spesifik (Opsional)">
 
-  let cacheDataMaster = {};
-  let allRekapData = [];
+          <button class="btn-blue" id="btnFilter" onclick="applyFilter()">Terapkan Filter</button>
+        </div>
 
-  document.addEventListener('DOMContentLoaded', () => {
-    loadClassesData();
-    
-    // Event listener untuk dropdown kelas
-    document.getElementById('filterKelas').addEventListener('change', (e) => {
-      const selectedClass = e.target.value;
-      if(selectedClass) {
-        loadRekapForClass(selectedClass);
-      } else {
-        document.getElementById('summaryTable').style.display = 'none';
-        setInfo('Pilih kelas untuk melihat rekap absensi.');
+        <div class="action-controls">
+          <button class="btn-blue" onclick="exportCSV()">Ekspor CSV</button>
+          <button class="btn-blue" onclick="printReport()">Cetak</button>
+        </div>
+      </div>
+
+      <!-- Helper Prompt Text -->
+      <div id="filterPrompt" class="filter-prompt-text">
+        Pilih kelas untuk melihat rekap absensi.
+      </div>
+
+      <!-- State 1: Loading Data -->
+      <div id="stateLoading" class="state-box hidden">
+        <div class="spinner"></div>
+        <p>Menghitung rekap absensi...</p>
+      </div>
+
+      <!-- State 2: Data Kosong -->
+      <div id="stateEmpty" class="state-box hidden">
+        <p>Tidak ada data absensi untuk filter ini.</p>
+      </div>
+
+      <!-- State 3: Tabel Rekap Hasil -->
+      <div id="stateData" class="hidden">
+        <div class="info-bar">
+          <span class="info-count" id="infoKelas">Kelas: -</span>
+          <span class="info-count" id="totalSiswaText">Total: 0 Siswa</span>
+        </div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 50px;">No</th>
+                <th class="text-left">Nama Siswa</th>
+                <th style="width: 100px;">Hadir</th>
+                <th style="width: 100px;">Sakit</th>
+                <th style="width: 100px;">Izin</th>
+                <th style="width: 100px;">Alpa</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal Pop-Up Detail Tanggal -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalTitle">Detail Absensi</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="modalSubTitle" style="color: var(--text-muted); font-size:0.85rem;"></p>
+        <ul class="date-list" id="modalDateList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbw4mY3JOE1I-vzsQQhpvuTm9_r6wEPiSIPcuC5LWfWbjjnu21LpFtx7tIuOAFzbTK5cEQ/exec";
+
+    // Cache Global
+    let rawAbsensiData = [];
+    let currentHeaders = [];
+    let currentRows = [];
+    let selectedRombelGlobal = "";
+
+    // DOM Elements
+    const selectRombel = document.getElementById('selectRombel');
+    const filterTanggal = document.getElementById('filterTanggal');
+    const filterPrompt = document.getElementById('filterPrompt');
+    const stateLoading = document.getElementById('stateLoading');
+    const stateEmpty = document.getElementById('stateEmpty');
+    const stateData = document.getElementById('stateData');
+    const tableBody = document.getElementById('tableBody');
+    const totalSiswaText = document.getElementById('totalSiswaText');
+    const infoKelas = document.getElementById('infoKelas');
+
+    document.addEventListener('DOMContentLoaded', initApp);
+
+    async function initApp() {
+      try {
+        const response = await fetch(`${API_URL}?action=getAllMasterData`);
+        const result = await response.json();
+
+        if (result.status === "success" && result.data) {
+          populateDropdown(Object.keys(result.data));
+        } else {
+          selectRombel.innerHTML = '<option value="">Gagal memuat daftar kelas</option>';
+        }
+      } catch (err) {
+        selectRombel.innerHTML = '<option value="">Koneksi API bermasalah</option>';
       }
-    });
-    
-    document.getElementById('btnApply').addEventListener('click', applyFilters);
-    document.getElementById('btnExportCSV').addEventListener('click', exportCSV);
-    document.getElementById('btnPrint').addEventListener('click', () => window.print());
-  });
+    }
 
-  function loadClassesData(){
-    setInfo('Memuat daftar kelas...');
-    console.log('Fetching master data from:', API_URL);
-    
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    function populateDropdown(rombelList) {
+      selectRombel.innerHTML = '<option value="">-- Pilih Kelas untuk Melihat Rekap --</option>';
+      rombelList.sort().forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r; 
+        opt.textContent = r;
+        selectRombel.appendChild(opt);
+      });
+      selectRombel.disabled = false;
+    }
 
-    fetch(`${API_URL}?action=getAllMasterData`, { 
-      method: 'GET',
-      signal: controller.signal,
-      headers: { 'Accept': 'application/json' }
-    })
-    .then(r => {
-      clearTimeout(timeoutId);
-      if(!r.ok) throw new Error(`HTTP ${r.status}`);
-      return r.json();
-    })
-    .then(res => {
-      console.log('Master data loaded:', res);
-      
-      if(res && res.status === 'success' && res.data){
-        cacheDataMaster = res.data;
-        populateClassFilter(Object.keys(res.data));
-        setInfo('✓ Pilih kelas di dropdown untuk melihat rekap absensi.');
-      } else {
-        setInfo('❌ Gagal memuat data kelas.');
+    // Fungsi Utama Eksekusi Filter
+    async function applyFilter() {
+      const selectedRombel = selectRombel.value;
+      if (!selectedRombel) {
+        showState('prompt');
+        return;
       }
-    })
-    .catch(err => {
-      clearTimeout(timeoutId);
-      console.error('Error:', err);
-      setInfo('❌ Gagal terhubung ke API.');
-    });
-  }
 
-  function populateClassFilter(classes){
-    const sel = document.getElementById('filterKelas');
-    sel.innerHTML = '<option value="">-- Pilih Kelas untuk Melihat Rekap --</option>';
-    
-    if(!classes || classes.length === 0) return;
-    
-    classes.sort().forEach(c => {
-      const opt = document.createElement('option'); 
-      opt.value = c; 
-      opt.innerText = c; 
-      sel.appendChild(opt);
-    });
-    console.log('Classes populated:', classes);
-  }
+      selectedRombelGlobal = selectedRombel;
+      showState('loading');
 
-  function loadRekapForClass(selectedClass){
-    setInfo(`Memuat rekap untuk ${selectedClass}...`);
-    console.log('Loading recap for class:', selectedClass);
-    
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            action: 'getDetailAbsensiKelas',
+            kelas: selectedRombel
+          })
+        });
 
-    // Panggil API dengan parameter kelas untuk mendapatkan rekap absensi
-    fetch(`${API_URL}?action=getRekapByKelas&kelas=${encodeURIComponent(selectedClass)}`, { 
-      method: 'GET',
-      signal: controller.signal,
-      headers: { 'Accept': 'application/json' }
-    })
-    .then(r => {
-      clearTimeout(timeoutId);
-      if(!r.ok) throw new Error(`HTTP ${r.status}`);
-      return r.json();
-    })
-    .then(res => {
-      console.log('Recap data received:', res);
-      
-      // Jika API mengembalikan data rekap
-      if(res && res.status === 'success' && res.data && Array.isArray(res.data)){
-        allRekapData = res.data;
-        displayRekapTable(allRekapData, selectedClass);
-      } else if(res && res.status === 'success' && res.data && res.data.length === 0){
-        // Tidak ada data rekap untuk kelas ini
-        setInfo(`ℹ️ Belum ada data absensi untuk kelas ${selectedClass}.`);
-        document.getElementById('summaryTable').style.display = 'none';
-      } else {
-        // API mungkin belum mendukung endpoint ini, tampilkan pesan
-        console.warn('API response:', res);
-        setInfo(`⚠️ Endpoint getRekapByKelas belum tersedia. Kirimkan absensi di halaman Input terlebih dahulu.`);
-        document.getElementById('summaryTable').style.display = 'none';
+        const result = await response.json();
+
+        if (result.status === "success" && result.rows && result.rows.length > 0) {
+          currentHeaders = result.headers;
+          currentRows = result.rows;
+          processAndRenderSummary();
+          showState('data');
+        } else {
+          showState('empty');
+        }
+      } catch (err) {
+        console.error(err);
+        showState('empty');
       }
-    })
-    .catch(err => {
-      clearTimeout(timeoutId);
-      console.error('Error loading recap:', err);
+    }
+
+    // Mengolah Seluruh Data & Opsional Filter Tanggal
+    function processAndRenderSummary() {
+      const targetDate = filterTanggal.value; // yyyy-mm-dd jika diisi
+
+      infoKelas.textContent = `Kelas: ${selectedRombelGlobal}${targetDate ? ' (Tanggal: ' + targetDate + ')' : ''}`;
+      totalSiswaText.textContent = `Total: ${currentRows.length} Siswa`;
+
+      tableBody.innerHTML = '';
+      rawAbsensiData = [];
+
+      currentRows.forEach((row, index) => {
+        const namaSiswa = row[0];
+        
+        let countHadir = 0;
+        let datesSakit = [];
+        let datesIzin = [];
+        let datesAlpa = [];
+
+        for (let col = 1; col < row.length; col++) {
+          const rawStatus = (row[col] || '').toString().trim().toLowerCase();
+          
+          let headerText = currentHeaders[col];
+          if (!headerText && currentHeaders[col - 1]) {
+            headerText = currentHeaders[col - 1];
+          }
+          const tanggal = headerText || `Pertemuan ${col}`;
+
+          // Jika ada filter tanggal spesifik, lewati tanggal lain
+          if (targetDate && tanggal !== targetDate) {
+            continue;
+          }
+
+          if (['hadir', 'h'].includes(rawStatus)) {
+            countHadir++;
+          } else if (['sakit', 's'].includes(rawStatus)) {
+            datesSakit.push(tanggal);
+          } else if (['izin', 'i'].includes(rawStatus)) {
+            datesIzin.push(tanggal);
+          } else if (['alpa', 'alpha', 'a'].includes(rawStatus)) {
+            datesAlpa.push(tanggal);
+          }
+        }
+
+        // Cache untuk modal
+        rawAbsensiData.push({
+          nama: namaSiswa,
+          sakit: datesSakit,
+          izin: datesIzin,
+          alpa: datesAlpa
+        });
+
+        // Render Baris
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="text-center">${index + 1}</td>
+          <td class="text-left" style="font-weight: 600;">${namaSiswa}</td>
+          <td class="text-center">
+            <span class="badge badge-hadir">${countHadir}</span>
+          </td>
+          <td class="text-center">
+            ${renderBadgeWithIcon(index, 'Sakit', datesSakit, 'badge-sakit')}
+          </td>
+          <td class="text-center">
+            ${renderBadgeWithIcon(index, 'Izin', datesIzin, 'badge-izin')}
+          </td>
+          <td class="text-center">
+            ${renderBadgeWithIcon(index, 'Alpa', datesAlpa, 'badge-alpa')}
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+
+    function renderBadgeWithIcon(siswaIndex, statusType, datesArray, badgeClass) {
+      const count = datesArray.length;
+      if (count === 0) {
+        return `<span class="badge ${badgeClass}" style="opacity: 0.4;">0</span>`;
+      }
+
+      const iconSVG = `
+        <button class="btn-detail" title="Lihat tanggal" onclick="openDetailModal(${siswaIndex}, '${statusType}')">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+          </svg>
+        </button>
+      `;
+
+      return `<span class="badge ${badgeClass}">${count} ${iconSVG}</span>`;
+    }
+
+    // Modal Details
+    function openDetailModal(siswaIndex, statusType) {
+      const siswa = rawAbsensiData[siswaIndex];
+      if (!siswa) return;
+
+      const dateList = siswa[statusType.toLowerCase()] || [];
       
-      // Jika endpoint tidak ada, tampilkan pesan informatif
-      setInfo(`ℹ️ Belum ada data rekap untuk kelas ini. Mulai input absensi terlebih dahulu.`);
-      document.getElementById('summaryTable').style.display = 'none';
-    });
-  }
+      document.getElementById('modalTitle').textContent = `Detail ${statusType}`;
+      document.getElementById('modalSubTitle').textContent = `${siswa.nama} (${dateList.length} kali ${statusType})`;
 
-  function displayRekapTable(data, selectedClass){
-    const tbody = document.getElementById('summaryBody');
-    tbody.innerHTML = '';
-    
-    if(!data || data.length === 0){
-      setInfo(`ℹ️ Tidak ada data absensi untuk ${selectedClass}.`);
-      document.getElementById('summaryTable').style.display = 'none';
-      return;
-    }
-    
-    document.getElementById('summaryTable').style.display = 'table';
-    setInfo(`✓ Menampilkan ${data.length} rekap absensi untuk ${selectedClass}.`);
-    
-    data.forEach(r => {
-      const tr = document.createElement('tr');
-      const hadir = r.hadir || 0;
-      const sakit = r.sakit || 0;
-      const izin = r.izin || 0;
-      const alpha = r.alpha || 0;
-      const total = hadir + sakit + izin + alpha;
-      
-      tr.innerHTML = `<td>${r.tanggal || ''}</td>
-                      <td>${r.kelas || selectedClass}</td>
-                      <td>${hadir}</td>
-                      <td>${sakit}</td>
-                      <td>${izin}</td>
-                      <td>${alpha}</td>
-                      <td>${total}</td>`;
-      tbody.appendChild(tr);
-    });
-    
-    window.currentSummary = data;
-  }
+      const listContainer = document.getElementById('modalDateList');
+      listContainer.innerHTML = '';
 
-  function applyFilters(){
-    const selectedClass = document.getElementById('filterKelas').value;
-    const filterDate = document.getElementById('filterDate').value;
-    
-    if(!selectedClass){
-      alert('Pilih kelas terlebih dahulu!');
-      return;
-    }
-    
-    let filtered = allRekapData || [];
-    
-    if(filterDate){
-      filtered = filtered.filter(x => (x.tanggal || '') === filterDate);
-    }
-    
-    if(filtered.length === 0){
-      setInfo(`ℹ️ Tidak ada data untuk tanggal ${filterDate || 'yang dipilih'}.`);
-      document.getElementById('summaryBody').innerHTML = '';
-      return;
-    }
-    
-    displayRekapTable(filtered, selectedClass);
-  }
+      if (dateList.length === 0) {
+        listContainer.innerHTML = `<li>Tidak ada catatan tanggal.</li>`;
+      } else {
+        dateList.forEach((tgl, i) => {
+          const li = document.createElement('li');
+          li.innerHTML = `<span>Ke-${i+1}</span> <strong>${tgl}</strong>`;
+          listContainer.appendChild(li);
+        });
+      }
 
-  function exportCSV(){
-    const data = window.currentSummary || [];
-    if(!data || data.length === 0){ 
-      alert('Tidak ada data untuk diekspor. Pilih kelas terlebih dahulu.'); 
-      return; 
+      document.getElementById('detailModal').classList.add('active');
     }
-    
-    const headers = ['tanggal','kelas','hadir','sakit','izin','alpha','total'];
-    const lines = [headers.join(',')];
-    
-    data.forEach(r => {
-      const hadir = r.hadir || 0;
-      const sakit = r.sakit || 0;
-      const izin = r.izin || 0;
-      const alpha = r.alpha || 0;
-      const total = hadir + sakit + izin + alpha;
-      const line = [r.tanggal || '', r.kelas || '', hadir, sakit, izin, alpha, total];
-      lines.push(line.join(','));
-    });
-    
-    const csv = lines.join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; 
-    a.download = 'rekap_absensi.csv'; 
-    document.body.appendChild(a); 
-    a.click(); 
-    a.remove(); 
-    URL.revokeObjectURL(url);
-  }
 
-  function setInfo(t){ 
-    const el = document.getElementById('info'); 
-    el.innerText = t;
-    console.log('Info:', t);
-  }
+    function closeModal() {
+      document.getElementById('detailModal').classList.remove('active');
+    }
 
-</script>
+    // Fitur Ekspor CSV
+    function exportCSV() {
+      if (rawAbsensiData.length === 0) {
+        alert("Pilih kelas dan terapkan filter terlebih dahulu.");
+        return;
+      }
+
+      let csvContent = "data:text/csv;charset=utf-8,No,Nama Siswa,Hadir,Sakit,Izin,Alpa\n";
+
+      rawAbsensiData.forEach((item, index) => {
+        // Ambil jumlah
+        const rowData = [
+          index + 1,
+          `"${item.nama}"`,
+          document.querySelectorAll(`#tableBody tr`)[index].children[2].innerText.trim(),
+          item.sakit.length,
+          item.izin.length,
+          item.alpa.length
+        ];
+        csvContent += rowData.join(",") + "\n";
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `Rekap_Absensi_${selectedRombelGlobal || 'Kelas'}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Fitur Cetak
+    function printReport() {
+      if (rawAbsensiData.length === 0) {
+        alert("Pilih kelas dan terapkan filter terlebih dahulu.");
+        return;
+      }
+      window.print();
+    }
+
+    // Helper State Visibility
+    function showState(state) {
+      filterPrompt.classList.add('hidden');
+      stateLoading.classList.add('hidden');
+      stateEmpty.classList.add('hidden');
+      stateData.classList.add('hidden');
+
+      if (state === 'prompt') filterPrompt.classList.remove('hidden');
+      if (state === 'loading') stateLoading.classList.remove('hidden');
+      if (state === 'empty') stateEmpty.classList.remove('hidden');
+      if (state === 'data') stateData.classList.remove('hidden');
+    }
+  </script>
 </body>
 </html>
