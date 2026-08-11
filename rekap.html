@@ -272,7 +272,7 @@
 
       <!-- Helper Prompt Text -->
       <div id="filterPrompt" class="filter-prompt-text">
-        Pilih kelas untuk melihat rekap absensi.
+        Pilih kelas
       </div>
 
       <!-- State 1: Loading Data -->
@@ -365,7 +365,7 @@
     }
 
     function populateDropdown(rombelList) {
-      selectRombel.innerHTML = '<option value="">-- Pilih Kelas untuk Melihat Rekap --</option>';
+      selectRombel.innerHTML = '<option value="">-- Pilih Kelas --</option>';
       rombelList.sort().forEach(r => {
         const opt = document.createElement('option');
         opt.value = r; 
