@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Rekap Absensi - Hadirmu</title>
+  <!-- Font Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --primary-color: #0284c7;
+      --bg-color: #f1f5f9;
+      --header-bg: #ffffff;
+      --text-color: #0f172a;
+      --text-sub: #64748b;
+      --card-bg: rgba(255,255,255,0.85);
+      --border-line: #e2e8f0;
+    }
+    [data-theme="dark"]{
+      --primary-color: #38bdf8;
+      --bg-color: #0f172a;
+      --header-bg: #1e293b;
+      --text-color: #f8fafc;
+      --text-sub: #94a3b8;
+      --card-bg: rgba(30,41,59,0.85);
+      --border-line: #334155;
+    }
+    *{box-sizing:border-box}
+    body{font-family:'Poppins',sans-serif;background:var(--bg-color);color:var(--text-color);margin:0;padding:0;display:flex;flex-direction:column;align-items:center;min-height:100vh}
+    header{width:100%;background:var(--header-bg);padding:12px 0;position:sticky;top:0;border-bottom:1px solid var(--border-line);z-index:600}
+    .navbar-container{width:90%;max-width:1100px;margin:auto;display:flex;justify-content:space-between;align-items:center}
+    .logo-icon{display:flex;align-items:center;justify-content:center;width:42px;height:42px;background:transparent;border-radius:12px;color:var(--primary-color);text-decoration:none}
+    .container{width:calc(100% - 32px);max-width:1100px;margin:24px auto;padding:20px;background:var(--card-bg);border-radius:16px;border:1px solid var(--border-line)}
+    h2{margin:0;font-size:20px}
+    p.sub{margin:6px 0 0;color:var(--text-sub);font-size:13px}
+    .controls{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0 18px}
+    select,input[type=date]{padding:10px 12px;border-radius:10px;border:1px solid var(--border-line);background:var(--header-bg);color:var(--text-color)}
+    .btn{padding:10px 12px;border-radius:10px;border:none;background:var(--primary-color);color:#fff;cursor:pointer;font-weight:600}
+    .summary-table{width:100%;border-collapse:collapse;margin-top:10px}
+    .summary-table th,.summary-table td{padding:8px 10px;border-bottom:1px solid var(--border-line);text-align:left}
+    .summary-table th{background:transparent;font-weight:600}
+    .small-muted{color:var(--text-sub);font-size:13px}
+    .details-row{background:rgba(0,0,0,0.02)}
+    .export-actions{margin-left:auto;display:flex;gap:8px}
+    @media(max-width:720px){.controls{flex-direction:column}.export-actions{margin-left:0}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="navbar-container">
+    <a href="/" class="logo-icon" title="Home">📋</a>
+    <div>
+      <strong>Hadirmu</strong>
+      <div class="small-muted">Rekap Absensi</div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <h2>Rekap Absensi</h2>
+  <p class="sub">Lihat ringkasan kehadiran per kelas dan per tanggal. Data diambil dari API yang sama dengan halaman input.</p>
+
+  <div class="controls">
+    <select id="filterKelas">
+      <option value="">-- Semua Kelas --</option>
+    </select>
+
+    <input type="date" id="filterDate" />
+
+    <button class="btn" id="btnApply">Terapkan</button>
+
+    <div class="export-actions">
+      <button class="btn" id="btnExportCSV">Ekspor CSV</button>
+      <button class="btn" id="btnPrint">Cetak</button>
+    </div>
+  </div>
+
+  <div id="info" class="small-muted">Memuat data...</div>
+  <table class="summary-table" id="summaryTable" style="display:none">
+    <thead>
+      <tr>
+        <th>Tanggal</th>
+        <th>Kelas</th>
+        <th>Hadir</th>
+        <th>Sakit</th>
+        <th>Izin</th>
+        <th>Alpha</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody id="summaryBody"></tbody>
+  </table>
+</div>
+
+<script>
+  // Gunakan API yang sama seperti index.html
+  const API_URL = "https://script.google.com/macros/s/AKfycbyBlg-Ph-wx68KNHsoFJMHlzY_aCbRZHNLgtAnbnI-e_0c_rAKVEOv9upsvjToMhuaRmw/exec";
+
+  let rawRecords = []; // bentuk array record {kelas, nama, tanggal, status}
+  let classes = new Set();
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadRekap();
+    document.getElementById('btnApply').addEventListener('click', applyFilters);
+    document.getElementById('btnExportCSV').addEventListener('click', exportCSV);
+    document.getElementById('btnPrint').addEventListener('click', () => window.print());
+  });
+
+  function loadRekap(){
+    setInfo('Memuat data rekap...');
+    fetch(`${API_URL}?action=getRekapAbsensi`, { method: 'GET' })
+    .then(r => r.json())
+    .then(res => {
+      if(res && res.status === 'success' && res.data){
+        // Mendukung dua bentuk respons:
+        // 1) res.data.records = [ {kelas,nama,tanggal,status}, ... ]
+        // 2) res.data = [ {kelas, tanggal, hadir, sakit, izin, alpha, total}, ... ] (sudah ter-rekap)
+        if(Array.isArray(res.data)){
+          // asumsi sudah ter-rekap
+          rawRecords = res.data;
+          buildTableFromSummaryArray(rawRecords);
+        } else if(Array.isArray(res.data.records)){
+          rawRecords = res.data.records.map(r => normalizeRecord(r));
+          populateClassFilter();
+          buildAggregatedTable();
+        } else if(res.data.rekap && Array.isArray(res.data.rekap)){
+          rawRecords = res.data.rekap.map(r => normalizeRecord(r));
+          populateClassFilter();
+          buildAggregatedTable();
+        } else {
+          // jika API mengirim object per kelas seperti cacheDataMaster
+          // coba konversi: {kelas: [nama,...], ...} -> tidak ada tanggal/status
+          // maka tampilkan informasi untuk meminta backend extend
+          setInfo('Format data tidak dikenal dari API. Perlu dukungan endpoint rekap pada Apps Script.');
+        }
+      } else {
+        setInfo('Gagal memuat rekap: ' + (res && res.message ? res.message : 'Respons tidak valid'));
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      setInfo('Gagal terhubung ke API.');
+    });
+  }
+
+  function normalizeRecord(r){
+    // Pastikan properti tersedia dan tanggal dalam format YYYY-MM-DD
+    return {
+      kelas: r.kelas || r.class || r.kelas_nama || '',
+      nama: r.nama || r.name || r.siswa || '',
+      tanggal: formatDateString(r.tanggal || r.date || r.created_at || r.tgl),
+      status: r.status || r.keterangan || ''
+    };
+  }
+
+  function formatDateString(s){
+    if(!s) return '';
+    // Jika sudah YYYY-MM-DD, kembalikan
+    if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    // Jika ISO
+    let d = new Date(s);
+    if(!isNaN(d)){
+      return d.toISOString().slice(0,10);
+    }
+    // coba parsing dd/mm/yyyy
+    let parts = s.split('/');
+    if(parts.length===3){
+      return parts[2].padStart(4,'0') + '-' + parts[1].padStart(2,'0') + '-' + parts[0].padStart(2,'0');
+    }
+    return s;
+  }
+
+  function populateClassFilter(){
+    classes = new Set(rawRecords.map(r => r.kelas).filter(Boolean));
+    const sel = document.getElementById('filterKelas');
+    sel.innerHTML = '<option value="">-- Semua Kelas --</option>';
+    Array.from(classes).sort().forEach(c => {
+      const opt = document.createElement('option'); opt.value = c; opt.innerText = c; sel.appendChild(opt);
+    });
+  }
+
+  function buildAggregatedTable(){
+    // Group by tanggal + kelas
+    const groups = {};
+    rawRecords.forEach(r => {
+      const key = `${r.tanggal}||${r.kelas}`;
+      if(!groups[key]) groups[key] = { tanggal: r.tanggal, kelas: r.kelas, hadir:0, sakit:0, izin:0, alpha:0, total:0, details: [] };
+      const g = groups[key];
+      const st = normalizeStatus(r.status);
+      if(st === 'Hadir') g.hadir++;
+      else if(st === 'Sakit') g.sakit++;
+      else if(st === 'Izin') g.izin++;
+      else if(st === 'Alpha') g.alpha++;
+      g.total++;
+      g.details.push(r);
+    });
+
+    const arr = Object.values(groups).sort((a,b) => (a.tanggal||'').localeCompare(b.tanggal||''));
+    buildTableFromSummaryArray(arr);
+    populateClassFilter();
+  }
+
+  function normalizeStatus(s){
+    if(!s) return 'Alpha';
+    s = String(s).toLowerCase();
+    if(s.includes('had')) return 'Hadir';
+    if(s.includes('sakit')) return 'Sakit';
+    if(s.includes('izin')) return 'Izin';
+    if(s.includes('a') && s.length===1) return 'Alpha';
+    if(s==='h' || s==='s' || s==='i' || s==='a'){
+      if(s==='h') return 'Hadir';
+      if(s==='s') return 'Sakit';
+      if(s==='i') return 'Izin';
+      if(s==='a') return 'Alpha';
+    }
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  function buildTableFromSummaryArray(arr){
+    document.getElementById('summaryTable').style.display = 'table';
+    document.getElementById('summaryBody').innerHTML = '';
+    if(arr.length===0){ setInfo('Tidak ada data rekap.'); return; }
+    setInfo(`Menampilkan ${arr.length} baris ringkasan.`);
+    arr.forEach((r, idx) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.tanggal||''}</td>
+                      <td>${r.kelas||''}</td>
+                      <td>${r.hadir!=null?r.hadir: (r.hadir_count!=null?r.hadir_count:'-')}</td>
+                      <td>${r.sakit!=null?r.sakit:(r.sakit_count!=null?r.sakit_count:'-')}</td>
+                      <td>${r.izin!=null?r.izin:(r.izin_count!=null?r.izin_count:'-')}</td>
+                      <td>${r.alpha!=null?r.alpha:(r.alpha_count!=null?r.alpha_count:'-')}</td>
+                      <td>${r.total!=null?r.total:(r.hadir||0)+(r.sakit||0)+(r.izin||0)+(r.alpha||0)}</td>`;
+      tr.style.cursor = 'pointer';
+      tr.addEventListener('click', () => toggleDetails(idx, r));
+      document.getElementById('summaryBody').appendChild(tr);
+    });
+    // Simpan current summary data untuk export
+    window.currentSummary = arr;
+  }
+
+  function toggleDetails(idx, rowData){
+    // jika belum memiliki details, tidak ada yang ditampilkan
+    const tbody = document.getElementById('summaryBody');
+    // jika baris detail sudah ada (next sibling), hapus
+    const next = tbody.children[idx*1 + 1];
+    // Simpler approach: remove any existing details rows then insert new one after clicked
+    // Hapus semua baris details (class detail-row)
+    Array.from(tbody.querySelectorAll('.details-row')).forEach(el => el.remove());
+
+    if(!rowData.details || rowData.details.length===0) return;
+    const detailTr = document.createElement('tr');
+    detailTr.className = 'details-row';
+    const td = document.createElement('td');
+    td.colSpan = 7;
+    let html = '<div style="padding:10px;background:transparent;border-radius:8px">';
+    html += '<strong>Rincian:</strong> <span class="small-muted">Klik sekali lagi untuk menutup</span>';
+    html += '<table style="width:100%;margin-top:8px;border-collapse:collapse">';
+    html += '<thead><tr><th style="text-align:left;padding:6px">Nama</th><th style="text-align:left;padding:6px">Status</th></tr></thead>';
+    html += '<tbody>';
+    rowData.details.forEach(d => {
+      html += `<tr><td style="padding:6px;border-bottom:1px solid var(--border-line)">${d.nama||''}</td><td style="padding:6px;border-bottom:1px solid var(--border-line)">${d.status||''}</td></tr>`;
+    });
+    html += '</tbody></table></div>';
+    td.innerHTML = html;
+    detailTr.appendChild(td);
+    // insert after the clicked row (calculate index)
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    // find position of the clicked summary row again
+    let insertPos = 0;
+    for(let i=0;i<rows.length;i++){
+      const r = rows[i];
+      // match by tanggal and kelas
+      if(r.cells && r.cells[0] && r.cells[0].innerText === (rowData.tanggal||'') && r.cells[1] && r.cells[1].innerText === (rowData.kelas||'')){
+        insertPos = i+1; break;
+      }
+    }
+    if(insertPos >= rows.length) tbody.appendChild(detailTr); else tbody.insertBefore(detailTr, rows[insertPos]);
+  }
+
+  function applyFilters(){
+    const kelas = document.getElementById('filterKelas').value;
+    const date = document.getElementById('filterDate').value;
+    let arr = window.currentSummary || [];
+    if(kelas) arr = arr.filter(x => (x.kelas||'')===kelas);
+    if(date) arr = arr.filter(x => (x.tanggal||'')===date);
+    buildTableFromSummaryArray(arr);
+    setInfo(`Filter diterapkan — ${arr.length} baris ditampilkan.`);
+  }
+
+  function exportCSV(){
+    const arr = window.currentSummary || [];
+    if(!arr || arr.length===0){ alert('Tidak ada data untuk diekspor'); return; }
+    const headers = ['tanggal','kelas','hadir','sakit','izin','alpha','total'];
+    const lines = [headers.join(',')];
+    arr.forEach(r => {
+      const line = [r.tanggal||'', quoteCSV(r.kelas||''), r.hadir||0, r.sakit||0, r.izin||0, r.alpha||0, r.total||((r.hadir||0)+(r.sakit||0)+(r.izin||0)+(r.alpha||0))];
+      lines.push(line.join(','));
+    });
+    const csv = lines.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'rekap_absensi.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  }
+
+  function quoteCSV(s){ if(typeof s!=='string') return s; return '"'+s.replace(/"/g,'""')+'"'; }
+
+  function setInfo(t){ const el = document.getElementById('info'); el.innerText = t; }
+
+</script>
+</body>
+</html>
