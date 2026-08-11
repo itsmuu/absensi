@@ -64,12 +64,12 @@
 
   <div class="controls">
     <select id="filterKelas">
-      <option value="">-- Memuat Kelas --</option>
+      <option value="">-- Pilih Kelas untuk Melihat Rekap --</option>
     </select>
 
     <input type="date" id="filterDate" />
 
-    <button class="btn" id="btnApply">Terapkan</button>
+    <button class="btn" id="btnApply">Terapkan Filter</button>
 
     <div class="export-actions">
       <button class="btn" id="btnExportCSV">Ekspor CSV</button>
@@ -77,7 +77,7 @@
     </div>
   </div>
 
-  <div id="info" class="small-muted">Memuat data rekap...</div>
+  <div id="info" class="small-muted">Memuat data kelas...</div>
   <table class="summary-table" id="summaryTable" style="display:none">
     <thead>
       <tr>
@@ -95,186 +95,202 @@
 </div>
 
 <script>
-  // API Speedsheet - sama seperti index.html
   const API_URL = "https://script.google.com/macros/s/AKfycbwLY30Nz3rqBbka4bpzhIPMlIWRCh5sMSgKl-uSrtGMA6jh15oahR4uJnNduWQogBz4kQ/exec";
 
-  let rawRecords = [];
-  let classes = new Set();
-  let allClasses = [];
+  let cacheDataMaster = {};
+  let allRekapData = [];
 
   document.addEventListener('DOMContentLoaded', () => {
-    loadRekapData();
+    loadClassesData();
+    
+    // Event listener untuk dropdown kelas
+    document.getElementById('filterKelas').addEventListener('change', (e) => {
+      const selectedClass = e.target.value;
+      if(selectedClass) {
+        loadRekapForClass(selectedClass);
+      } else {
+        document.getElementById('summaryTable').style.display = 'none';
+        setInfo('Pilih kelas untuk melihat rekap absensi.');
+      }
+    });
+    
     document.getElementById('btnApply').addEventListener('click', applyFilters);
     document.getElementById('btnExportCSV').addEventListener('click', exportCSV);
     document.getElementById('btnPrint').addEventListener('click', () => window.print());
   });
 
-  function loadRekapData(){
-    setInfo('Memuat data rekap dari Sheets...');
-    console.log('Fetching from Speedsheet API:', API_URL);
+  function loadClassesData(){
+    setInfo('Memuat daftar kelas...');
+    console.log('Fetching master data from:', API_URL);
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-    // Ambil semua master data seperti index.html
     fetch(`${API_URL}?action=getAllMasterData`, { 
       method: 'GET',
       signal: controller.signal,
-      headers: {
-        'Accept': 'application/json'
-      }
+      headers: { 'Accept': 'application/json' }
     })
     .then(r => {
       clearTimeout(timeoutId);
-      console.log('Response status:', r.status);
-      if(!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
       return r.json();
     })
     .then(res => {
-      console.log('API Response:', res);
+      console.log('Master data loaded:', res);
       
       if(res && res.status === 'success' && res.data){
-        // res.data = { "Kelas X TKJ": ["Siswa1", "Siswa2", ...], "Kelas XI TKJ": [...] }
-        allClasses = Object.keys(res.data);
-        populateClassFilter(allClasses);
-        
-        // Untuk demo, kita buat data ringkasan dari struktur yang ada
-        // Karena Spreadsheet tidak menyimpan rekap per tanggal, kita tampilkan pesan
-        setInfo('✓ Data kelas dimuat. Catatan: Rekap absensi memerlukan data tanggal dari Sheets yang ter-input setiap hari.');
-        
-        // Tampilkan placeholder table
-        buildPlaceholderTable(allClasses);
+        cacheDataMaster = res.data;
+        populateClassFilter(Object.keys(res.data));
+        setInfo('✓ Pilih kelas di dropdown untuk melihat rekap absensi.');
       } else {
-        const errorMsg = res && res.message ? res.message : 'Respons tidak valid';
-        console.error('API Error:', errorMsg);
-        setInfo('❌ Gagal memuat data: ' + errorMsg);
+        setInfo('❌ Gagal memuat data kelas.');
       }
     })
     .catch(err => {
       clearTimeout(timeoutId);
-      console.error('Fetch Error:', err);
-      
-      let errorMsg = 'Gagal terhubung ke API.';
-      if(err.name === 'AbortError') {
-        errorMsg = '⏱️ Request timeout. API tidak merespons dalam 15 detik.';
-      } else if(err.message.includes('Failed to fetch')) {
-        errorMsg = '❌ Network error. Cek koneksi internet atau URL API.';
-      }
-      setInfo(errorMsg);
-      console.log('Debug - API_URL:', API_URL);
+      console.error('Error:', err);
+      setInfo('❌ Gagal terhubung ke API.');
     });
   }
 
   function populateClassFilter(classes){
     const sel = document.getElementById('filterKelas');
+    sel.innerHTML = '<option value="">-- Pilih Kelas untuk Melihat Rekap --</option>';
     
-    if(!classes || classes.length === 0){
-      sel.innerHTML = '<option value="">-- Tidak ada kelas --</option>';
-      return;
-    }
+    if(!classes || classes.length === 0) return;
     
-    sel.innerHTML = '<option value="">-- Semua Kelas --</option>';
     classes.sort().forEach(c => {
       const opt = document.createElement('option'); 
       opt.value = c; 
       opt.innerText = c; 
       sel.appendChild(opt);
     });
-    console.log('Classes loaded:', classes);
+    console.log('Classes populated:', classes);
   }
 
-  function buildPlaceholderTable(classes){
-    // Tampilkan tabel dengan format header tapi belum ada data rekap detail
-    // Ini berguna untuk menunjukkan struktur yang diharapkan
+  function loadRekapForClass(selectedClass){
+    setInfo(`Memuat rekap untuk ${selectedClass}...`);
+    console.log('Loading recap for class:', selectedClass);
     
-    const tbody = document.getElementById('summaryBody');
-    tbody.innerHTML = '';
-    
-    // Buat contoh data dari kelas yang ada (untuk demo)
-    const today = new Date().toISOString().split('T')[0];
-    let demoRows = [];
-    
-    classes.slice(0, 3).forEach(kelas => {
-      demoRows.push({
-        tanggal: today,
-        kelas: kelas,
-        hadir: Math.floor(Math.random() * 30) + 10,
-        sakit: Math.floor(Math.random() * 5),
-        izin: Math.floor(Math.random() * 3),
-        alpha: Math.floor(Math.random() * 2)
-      });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+    // Panggil API dengan parameter kelas untuk mendapatkan rekap absensi
+    fetch(`${API_URL}?action=getRekapByKelas&kelas=${encodeURIComponent(selectedClass)}`, { 
+      method: 'GET',
+      signal: controller.signal,
+      headers: { 'Accept': 'application/json' }
+    })
+    .then(r => {
+      clearTimeout(timeoutId);
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    })
+    .then(res => {
+      console.log('Recap data received:', res);
+      
+      // Jika API mengembalikan data rekap
+      if(res && res.status === 'success' && res.data && Array.isArray(res.data)){
+        allRekapData = res.data;
+        displayRekapTable(allRekapData, selectedClass);
+      } else if(res && res.status === 'success' && res.data && res.data.length === 0){
+        // Tidak ada data rekap untuk kelas ini
+        setInfo(`ℹ️ Belum ada data absensi untuk kelas ${selectedClass}.`);
+        document.getElementById('summaryTable').style.display = 'none';
+      } else {
+        // API mungkin belum mendukung endpoint ini, tampilkan pesan
+        console.warn('API response:', res);
+        setInfo(`⚠️ Endpoint getRekapByKelas belum tersedia. Kirimkan absensi di halaman Input terlebih dahulu.`);
+        document.getElementById('summaryTable').style.display = 'none';
+      }
+    })
+    .catch(err => {
+      clearTimeout(timeoutId);
+      console.error('Error loading recap:', err);
+      
+      // Jika endpoint tidak ada, tampilkan pesan informatif
+      setInfo(`ℹ️ Belum ada data rekap untuk kelas ini. Mulai input absensi terlebih dahulu.`);
+      document.getElementById('summaryTable').style.display = 'none';
     });
-    
-    if(demoRows.length > 0){
-      document.getElementById('summaryTable').style.display = 'table';
-      setInfo(`✓ Struktur tabel siap. Kirimkan data absensi melalui Input Absensi untuk melihat rekap lengkap.`);
-      
-      demoRows.forEach(r => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${r.tanggal}</td>
-                        <td>${r.kelas}</td>
-                        <td>${r.hadir}</td>
-                        <td>${r.sakit}</td>
-                        <td>${r.izin}</td>
-                        <td>${r.alpha}</td>
-                        <td>${r.hadir + r.sakit + r.izin + r.alpha}</td>`;
-        tbody.appendChild(tr);
-      });
-      
-      window.currentSummary = demoRows;
-    } else {
-      setInfo('ℹ️ Tidak ada data. Mulai dengan Input Absensi terlebih dahulu.');
-    }
   }
 
-  function applyFilters(){
-    const kelas = document.getElementById('filterKelas').value;
-    const date = document.getElementById('filterDate').value;
-    let arr = window.currentSummary || [];
-    
-    if(kelas) arr = arr.filter(x => (x.kelas||'')===kelas);
-    if(date) arr = arr.filter(x => (x.tanggal||'')===date);
-    
+  function displayRekapTable(data, selectedClass){
     const tbody = document.getElementById('summaryBody');
     tbody.innerHTML = '';
     
-    if(arr.length === 0){
-      setInfo('ℹ️ Tidak ada data yang cocok dengan filter.');
+    if(!data || data.length === 0){
+      setInfo(`ℹ️ Tidak ada data absensi untuk ${selectedClass}.`);
+      document.getElementById('summaryTable').style.display = 'none';
       return;
     }
     
-    arr.forEach(r => {
+    document.getElementById('summaryTable').style.display = 'table';
+    setInfo(`✓ Menampilkan ${data.length} rekap absensi untuk ${selectedClass}.`);
+    
+    data.forEach(r => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.tanggal}</td>
-                      <td>${r.kelas}</td>
-                      <td>${r.hadir}</td>
-                      <td>${r.sakit}</td>
-                      <td>${r.izin}</td>
-                      <td>${r.alpha}</td>
-                      <td>${r.hadir + r.sakit + r.izin + r.alpha}</td>`;
+      const hadir = r.hadir || 0;
+      const sakit = r.sakit || 0;
+      const izin = r.izin || 0;
+      const alpha = r.alpha || 0;
+      const total = hadir + sakit + izin + alpha;
+      
+      tr.innerHTML = `<td>${r.tanggal || ''}</td>
+                      <td>${r.kelas || selectedClass}</td>
+                      <td>${hadir}</td>
+                      <td>${sakit}</td>
+                      <td>${izin}</td>
+                      <td>${alpha}</td>
+                      <td>${total}</td>`;
       tbody.appendChild(tr);
     });
     
-    const filterInfo = [];
-    if(kelas) filterInfo.push(`Kelas: ${kelas}`);
-    if(date) filterInfo.push(`Tanggal: ${date}`);
-    setInfo(`✓ Filter diterapkan (${filterInfo.join(', ')}) — ${arr.length} baris ditampilkan.`);
+    window.currentSummary = data;
+  }
+
+  function applyFilters(){
+    const selectedClass = document.getElementById('filterKelas').value;
+    const filterDate = document.getElementById('filterDate').value;
+    
+    if(!selectedClass){
+      alert('Pilih kelas terlebih dahulu!');
+      return;
+    }
+    
+    let filtered = allRekapData || [];
+    
+    if(filterDate){
+      filtered = filtered.filter(x => (x.tanggal || '') === filterDate);
+    }
+    
+    if(filtered.length === 0){
+      setInfo(`ℹ️ Tidak ada data untuk tanggal ${filterDate || 'yang dipilih'}.`);
+      document.getElementById('summaryBody').innerHTML = '';
+      return;
+    }
+    
+    displayRekapTable(filtered, selectedClass);
   }
 
   function exportCSV(){
-    const arr = window.currentSummary || [];
-    if(!arr || arr.length===0){ 
-      alert('Tidak ada data untuk diekspor'); 
+    const data = window.currentSummary || [];
+    if(!data || data.length === 0){ 
+      alert('Tidak ada data untuk diekspor. Pilih kelas terlebih dahulu.'); 
       return; 
     }
     
     const headers = ['tanggal','kelas','hadir','sakit','izin','alpha','total'];
     const lines = [headers.join(',')];
     
-    arr.forEach(r => {
-      const total = (r.hadir||0) + (r.sakit||0) + (r.izin||0) + (r.alpha||0);
-      const line = [r.tanggal||'', r.kelas||'', r.hadir||0, r.sakit||0, r.izin||0, r.alpha||0, total];
-      lines.push(line.map(v => typeof v === 'string' && v.includes(',') ? `"${v}"` : v).join(','));
+    data.forEach(r => {
+      const hadir = r.hadir || 0;
+      const sakit = r.sakit || 0;
+      const izin = r.izin || 0;
+      const alpha = r.alpha || 0;
+      const total = hadir + sakit + izin + alpha;
+      const line = [r.tanggal || '', r.kelas || '', hadir, sakit, izin, alpha, total];
+      lines.push(line.join(','));
     });
     
     const csv = lines.join('\n');
