@@ -54,7 +54,7 @@
     body { background-color: var(--bg-page); color: var(--text-main); line-height: 1.5; min-height: 100vh; transition: background-color 0.3s, color 0.3s; }
 
     /* =========================================================
-       EXACT NAVBAR STYLES MATCHING THE IMAGE
+       NAVBAR STYLES
        ========================================================= */
     header {
       width: 100%;
@@ -90,9 +90,7 @@
       transition: transform 0.2s ease, background-color 0.2s;
     }
 
-    .logo-icon:hover {
-      transform: scale(1.04);
-    }
+    .logo-icon:hover { transform: scale(1.04); }
 
     .logo-icon svg {
       width: 22px;
@@ -133,13 +131,9 @@
       font-weight: 600;
     }
 
-    .nav-links a.active svg {
-      stroke: var(--primary);
-    }
+    .nav-links a.active svg { stroke: var(--primary); }
 
-    .nav-dropdown {
-      position: relative;
-    }
+    .nav-dropdown { position: relative; }
 
     .nav-dropdown-menu {
       position: absolute;
@@ -167,9 +161,7 @@
       font-weight: 500;
     }
 
-    .nav-dropdown-menu li a:hover {
-      background: rgba(2, 132, 199, 0.08);
-    }
+    .nav-dropdown-menu li a:hover { background: rgba(2, 132, 199, 0.08); }
 
     .nav-dropdown:hover .nav-dropdown-menu {
       opacity: 1;
@@ -268,9 +260,7 @@
         display: none;
       }
 
-      .nav-dropdown.active .nav-dropdown-menu {
-        display: block;
-      }
+      .nav-dropdown.active .nav-dropdown-menu { display: block; }
     }
 
     /* =========================================================
@@ -313,7 +303,7 @@
       gap: 10px;
     }
 
-    select, input[type="date"] {
+    select {
       padding: 10px 14px;
       font-size: 0.9rem;
       border: 1px solid var(--border);
@@ -322,11 +312,12 @@
       background: var(--card-bg);
       color: var(--text-main);
       transition: border-color 0.2s;
+      cursor: pointer;
     }
-    select:focus, input[type="date"]:focus { border-color: var(--primary); }
+    select:focus { border-color: var(--primary); }
 
-    select { min-width: 260px; cursor: pointer; }
-    input[type="date"] { min-width: 150px; cursor: pointer; }
+    #selectRombel { min-width: 200px; }
+    #selectBulan { min-width: 160px; }
 
     .btn-blue {
       background-color: var(--primary);
@@ -456,11 +447,9 @@
 </head>
 <body>
 
-  <!-- EXACT NAVBAR AS SHOWN IN IMAGE -->
+  <!-- NAVBAR -->
   <header>
     <div class="navbar-container">
-      
-      <!-- LOGO KIRI (IKON GRID 4 KOTAK BIRU) -->
       <a href="https://itsmuu.github.io/" class="logo-icon" title="Portal Utama">
         <svg viewBox="0 0 24 24">
           <rect x="3" y="3" width="7" height="7" rx="2"></rect>
@@ -471,12 +460,10 @@
       </a>
 
       <div class="nav-right">
-        <!-- LINK NAVIGASI -->
         <ul class="nav-links" id="navLinks">
           <li><a href="https://itsmuu.github.io/">Home</a></li>
           <li><a href="https://itsmuu.github.io/perkembanganfisik/">Perkembangan Fisik</a></li>
           
-          <!-- MENU ABSENSI ACTIVE DENGAN CHEVRON PANAH DOWN -->
           <li class="nav-dropdown" id="absensiDropdown">
             <a href="#" class="active" onclick="toggleSubMenu(event)">
               Absensi 
@@ -486,7 +473,7 @@
             </a>
             <ul class="nav-dropdown-menu">
               <li><a href="https://itsmuu.github.io/absensi/">Input Absensi</a></li>
-              <li><a href="https://itsmuu.github.io/laporan-absensi/">Laporan Absensi</a></li>
+              <li><a href="#" onclick="openPassModal(); return false;">Laporan Absensi</a></li>
               <li><a href="./rekap.html" class="active">Lihat Absensi</a></li>
             </ul>
           </li>
@@ -495,7 +482,6 @@
           <li><a href="https://itsmuu.github.io/ketuntasan/">Ketuntasan</a></li>
         </ul>
         
-        <!-- TOMBOL SWITCH DARK/LIGHT MODE (CIRCULAR ICON) -->
         <button class="theme-toggle-btn" id="theme-toggle" title="Ubah Mode Tema">
           <svg id="moon-icon" viewBox="0 0 24 24">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
@@ -513,14 +499,12 @@
           </svg>
         </button>
 
-        <!-- HAMBURGER BUTTON (MOBILE) -->
         <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu()">
           <span></span>
           <span></span>
           <span></span>
         </button>
       </div>
-
     </div>
   </header>
 
@@ -532,11 +516,27 @@
       <!-- Filter and Action Buttons Row -->
       <div class="filter-action-row">
         <div class="filter-controls">
+          <!-- DROPDOWN PILIH KELAS -->
           <select id="selectRombel" disabled>
             <option value="">-- Memuat daftar kelas... --</option>
           </select>
           
-          <input type="date" id="filterTanggal" title="Pilih Tanggal Spesifik (Opsional)">
+          <!-- DROPDOWN PILIH BULAN -->
+          <select id="selectBulan">
+            <option value="">-- Semua Bulan --</option>
+            <option value="1">Januari</option>
+            <option value="2">Februari</option>
+            <option value="3">Maret</option>
+            <option value="4">April</option>
+            <option value="5">Mei</option>
+            <option value="6">Juni</option>
+            <option value="7">Juli</option>
+            <option value="8">Agustus</option>
+            <option value="9">September</option>
+            <option value="10">Oktober</option>
+            <option value="11">November</option>
+            <option value="12">Desember</option>
+          </select>
 
           <button class="btn-blue" id="btnFilter" onclick="applyFilter()">Terapkan Filter</button>
         </div>
@@ -547,7 +547,7 @@
         </div>
       </div>
 
-      <!-- State 1: Prompt Awal (Memuat Animasi Saat Fetch Daftar Rombel) -->
+      <!-- State 1: Prompt Awal -->
       <div id="statePrompt" class="state-box">
         <div id="promptRombelLoading">
           <div class="loading-container">
@@ -693,6 +693,12 @@
       }
     });
 
+    // Daftar Nama Bulan
+    const MONTH_NAMES = [
+      "", "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+      "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    ];
+
     // Google Sheets API Integration
     const API_URL = "https://script.google.com/macros/s/AKfycbw4mY3JOE1I-vzsQQhpvuTm9_r6wEPiSIPcuC5LWfWbjjnu21LpFtx7tIuOAFzbTK5cEQ/exec";
 
@@ -702,10 +708,10 @@
     let selectedRombelGlobal = "";
 
     const selectRombel = document.getElementById('selectRombel');
+    const selectBulan = document.getElementById('selectBulan');
     const promptRombelLoading = document.getElementById('promptRombelLoading');
     const promptRombelReady = document.getElementById('promptRombelReady');
     
-    const filterTanggal = document.getElementById('filterTanggal');
     const btnFilter = document.getElementById('btnFilter');
     const statePrompt = document.getElementById('statePrompt');
     const stateLoading = document.getElementById('stateLoading');
@@ -788,10 +794,46 @@
       }
     }
 
-    function processAndRenderSummary() {
-      const targetDate = filterTanggal.value;
+    // Fungsi mengecek apakah header tanggal cocok dengan bulan yang dipilih (1-12)
+    function isDateInMonth(headerText, monthNum) {
+      if (!monthNum || !headerText) return true;
 
-      infoKelas.textContent = `Kelas: ${selectedRombelGlobal}${targetDate ? ' (Tanggal: ' + targetDate + ')' : ''}`;
+      const targetMonth = parseInt(monthNum); // 1 sampai 12
+      const targetMonthName = MONTH_NAMES[targetMonth].toLowerCase();
+
+      const cleanText = headerText.toString().toLowerCase();
+
+      // 1. Cek jika teks header mengandung nama bulan (misal: "14 Agustus 2026")
+      if (cleanText.includes(targetMonthName)) {
+        return true;
+      }
+
+      // 2. Parse menggunakan Date object (misal: "2026-08-14" atau "2026/08/14")
+      const parsedDate = new Date(headerText);
+      if (!isNaN(parsedDate.getTime())) {
+        return (parsedDate.getMonth() + 1) === targetMonth;
+      }
+
+      // 3. Parse format tanggal numerik umum seperti DD-MM-YYYY atau DD/MM/YYYY
+      const parts = cleanText.match(/\d+/g);
+      if (parts && parts.length >= 2) {
+        // Asumsi format DD/MM/YYYY atau YYYY-MM-DD
+        let m = parts[0].length === 4 ? parseInt(parts[1]) : parseInt(parts[1]);
+        if (m === targetMonth) return true;
+      }
+
+      return false;
+    }
+
+    function processAndRenderSummary() {
+      const selectedMonthVal = selectBulan.value; // nilainya '1' s/d '12' atau ''
+
+      let labelFilterBulan = '';
+      if (selectedMonthVal && MONTH_NAMES[selectedMonthVal]) {
+        labelFilterBulan = ` (Bulan: ${MONTH_NAMES[selectedMonthVal]})`;
+      }
+
+      infoKelas.textContent = `Kelas: ${selectedRombelGlobal}${labelFilterBulan}`;
       totalSiswaText.textContent = `Total: ${currentRows.length} Siswa`;
 
       tableBody.innerHTML = '';
@@ -814,7 +856,8 @@
           }
           const tanggal = headerText || `Pertemuan ${col}`;
 
-          if (targetDate && tanggal !== targetDate) {
+          // Filter sesuai pilihan bulan dari Dropdown
+          if (selectedMonthVal && !isDateInMonth(tanggal, selectedMonthVal)) {
             continue;
           }
 
