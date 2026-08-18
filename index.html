@@ -1,1002 +1,246 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Hadirmu - Absensi Online TKJ</title>
-  
-  <!-- Font Poppins -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-  <style>
-    /* --- TEMA VARIABLE (DEFAULT: TERANG) --- */
-    :root {
-      --primary-color: #0284c7;
-      --secondary-color: #f8fafc;
-      --text-color: #0f172a;
-      --text-sub: #64748b;
-      --bg-color: #f1f5f9;
-      --header-bg: #ffffff;
-      --card-bg: rgba(255, 255, 255, 0.85);
-      --border-line: #e2e8f0;
-      --icon-bg: #f0f9ff;
-      --icon-border: #e0f2fe;
-      --nav-link: #475569;
-      
-      --color-h: #2ecc71;
-      --color-i: #f1c40f;
-      --color-s: #3498db;
-      --color-a: #e74c3c;
-    }
-
-    /* --- TEMA GELAP --- */
-    [data-theme="dark"] {
-      --primary-color: #38bdf8;
-      --secondary-color: #1e293b;
-      --text-color: #f8fafc;
-      --text-sub: #94a3b8;
-      --bg-color: #0f172a;
-      --header-bg: #1e293b;
-      --card-bg: rgba(30, 41, 59, 0.85);
-      --border-line: #334155;
-      --icon-bg: rgba(56, 189, 248, 0.1);
-      --icon-border: rgba(56, 189, 248, 0.2);
-      --nav-link: #cbd5e1;
-    }
-
-    * { box-sizing: border-box; }
-
-    body { 
-      font-family: 'Poppins', sans-serif; 
-      background-color: var(--bg-color); 
-      color: var(--text-color);
-      margin: 0; 
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      transition: background-color 0.4s ease, color 0.4s ease;
-    }
-
-    /* ---------------------------------------------------- */
-    /* HEADER & NAVBAR STYLING                              */
-    /* ---------------------------------------------------- */
-    header {
-      width: 100%;
-      background-color: var(--header-bg);
-      color: var(--text-color);
-      padding: 12px 0;
-      position: sticky;
-      top: 0;
-      z-index: 500;
-      border-bottom: 1px solid var(--border-line);
-      transition: background-color 0.4s ease, border-color 0.4s ease;
-      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.03);
-    }
-
-    .navbar-container {
-      width: 90%;
-      max-width: 1100px;
-      margin: auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    /* LOGO ICON KUSTOM */
-    .logo-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 42px;
-      height: 42px;
-      background-color: var(--icon-bg);
-      border: 1px solid var(--icon-border);
-      border-radius: 12px;
-      color: var(--primary-color);
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.4s ease, border-color 0.4s ease;
-      flex-shrink: 0;
-      text-decoration: none;
-    }
-
-    .logo-icon:hover {
-      transform: scale(1.08) rotate(-5deg);
-    }
-
-    .logo-icon svg {
-      width: 24px;
-      height: 24px;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 2.2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-    }
-
-    .nav-links {
-      list-style: none;
-      display: flex;
-      gap: 16px;
-      margin: 0;
-      padding: 0;
-      align-items: center;
-    }
-
-    .nav-links li {
-      position: relative;
-    }
-
-    .nav-links a {
-      color: var(--nav-link);
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 14.5px;
-      transition: color 0.25s ease;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .nav-links a:hover,
-    .nav-links a.active {
-      color: var(--primary-color);
-    }
-
-    /* DROPDOWN MENU DI NAVBAR DESKTOP */
-    .nav-dropdown {
-      position: relative;
-    }
-
-    .nav-dropdown-menu {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      background: var(--header-bg);
-      border: 1px solid var(--border-line);
-      border-radius: 12px;
-      padding: 6px;
-      min-width: 170px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(10px);
-      transition: all 0.25s ease;
-      list-style: none;
-      z-index: 600;
-    }
-
-    .nav-dropdown:hover .nav-dropdown-menu {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-
-    .nav-dropdown-menu li {
-      width: 100%;
-    }
-
-    .nav-dropdown-menu a {
-      padding: 8px 12px;
-      font-size: 13.5px;
-      border-radius: 8px;
-      color: var(--text-color);
-      display: block;
-      width: 100%;
-    }
-
-    .nav-dropdown-menu a:hover {
-      background-color: var(--icon-bg);
-      color: var(--primary-color);
-    }
-
-    .nav-arrow {
-      border: solid currentColor;
-      border-width: 0 2px 2px 0;
-      display: inline-block;
-      padding: 2.5px;
-      transform: rotate(45deg);
-      margin-left: 2px;
-      transition: transform 0.2s ease;
-    }
-
-    .nav-dropdown:hover .nav-arrow {
-      transform: rotate(-135deg);
-    }
-
-    /* TOMBOL DARK MODE TOGGLE */
-    .theme-toggle-btn {
-      background: transparent;
-      border: 1px solid var(--border-line);
-      color: var(--text-color);
-      border-radius: 50%;
-      width: 38px;
-      height: 38px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .theme-toggle-btn:hover {
-      border-color: var(--primary-color);
-      color: var(--primary-color);
-      transform: scale(1.08) rotate(12deg);
-    }
-
-    .theme-toggle-btn svg {
-      width: 19px;
-      height: 19px;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    /* TOMBOL HAMBURGER MOBILE */
-    .hamburger-btn {
-      display: none;
-      width: 38px;
-      height: 38px;
-      background: transparent;
-      border: 1px solid var(--border-line);
-      border-radius: 10px;
-      cursor: pointer;
-      padding: 8px;
-      flex-direction: column;
-      justify-content: space-around;
-      align-items: center;
-    }
-
-    .hamburger-btn span {
-      width: 20px;
-      height: 2px;
-      background-color: var(--text-color);
-      border-radius: 2px;
-      transition: all 0.3s ease;
-    }
-
-    .hamburger-btn.active span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-    .hamburger-btn.active span:nth-child(2) { opacity: 0; }
-    .hamburger-btn.active span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
-
-    /* RESPONSIVE NAVBAR MOBILE */
-    @media (max-width: 768px) {
-      .hamburger-btn { display: flex; }
-      
-      .nav-links {
-        position: absolute;
-        top: 65px;
-        left: 0;
-        right: 0;
-        background: var(--header-bg);
-        border-bottom: 1px solid var(--border-line);
-        flex-direction: column;
-        gap: 0;
-        padding: 8px 0;
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(-10px);
-        transition: all 0.3s ease;
-      }
-
-      .nav-links.open {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-      }
-
-      .nav-links li { width: 100%; }
-
-      .nav-links a {
-        display: flex;
-        justify-content: space-between;
-        padding: 12px 20px;
-        width: 100%;
-        border-bottom: 1px solid var(--border-line);
-      }
-
-      .nav-dropdown-menu {
-        position: static;
-        opacity: 1;
-        visibility: visible;
-        transform: none;
-        box-shadow: none;
-        border: none;
-        border-radius: 0;
-        background: var(--bg-color);
-        padding: 0;
-        display: none;
-      }
-
-      .nav-dropdown.active .nav-dropdown-menu {
-        display: block;
-      }
-
-      .nav-dropdown-menu a {
-        padding: 10px 32px;
-        font-size: 13px;
-        border-bottom: 1px solid var(--border-line);
-      }
-    }
-
-    /* ---------------------------------------------------- */
-    /* CONTAINER UTAMA & FORM STYLING                      */
-    /* ---------------------------------------------------- */
-    .container { 
-      width: calc(100% - 32px);
-      max-width: 520px; 
-      margin: 24px auto; 
-      padding: 24px; 
-      background: var(--card-bg); 
-      border-radius: 20px; 
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--border-line);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-      transition: background-color 0.4s ease, border-color 0.4s ease;
-    }
-
-    .header-app {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    
-    .header-app h2 { 
-      margin: 0; 
-      font-weight: 600; 
-      color: var(--text-color);
-      font-size: 24px;
-    }
-    
-    .header-app p {
-      margin: 4px 0 0;
-      font-weight: 300;
-      font-size: 13px;
-      color: var(--text-sub);
-    }
-
-    label { 
-      font-weight: 600; 
-      font-size: 13px; 
-      color: var(--text-sub);
-      display: block;
-      margin-bottom: 8px;
-    }
-
-    /* CUSTOM DROPDOWN MODERN */
-    .custom-select-wrapper {
-      position: relative;
-      user-select: none;
-    }
-
-    .custom-select-trigger {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 16px;
-      background: var(--header-bg);
-      border-radius: 14px;
-      border: 1px solid var(--border-line);
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-color);
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .custom-select-trigger:hover {
-      border-color: var(--primary-color);
-    }
-
-    .custom-select-trigger .arrow {
-      width: 8px;
-      height: 8px;
-      border-right: 2px solid var(--text-sub);
-      border-bottom: 2px solid var(--text-sub);
-      transform: rotate(45deg);
-      transition: transform 0.3s ease;
-      margin-bottom: 2px;
-    }
-
-    .custom-select-wrapper.open .custom-select-trigger .arrow {
-      transform: rotate(-135deg);
-      margin-bottom: -2px;
-    }
-
-    .custom-options {
-      position: absolute;
-      display: block;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: var(--header-bg);
-      border-radius: 14px;
-      border: 1px solid var(--border-line);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      margin-top: 6px;
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-      transform: translateY(-8px);
-      transition: all 0.25s ease;
-      z-index: 100;
-      max-height: 220px;
-      overflow-y: auto;
-      padding: 6px;
-    }
-
-    .custom-select-wrapper.open .custom-options {
-      opacity: 1;
-      visibility: visible;
-      pointer-events: all;
-      transform: translateY(0);
-    }
-
-    .custom-option {
-      padding: 10px 14px;
-      font-size: 13.5px;
-      font-weight: 500;
-      color: var(--text-color);
-      cursor: pointer;
-      border-radius: 8px;
-      transition: all 0.2s ease;
-      margin-bottom: 2px;
-    }
-
-    .custom-option:hover {
-      background-color: var(--icon-bg);
-      color: var(--primary-color);
-    }
-
-    .custom-option.selected {
-      background-color: var(--primary-color);
-      color: white;
-    }
-
-    #daftarSiswa { margin-top: 20px; }
-
-    .daftar-header {
-      font-weight: 600;
-      color: var(--text-color);
-      border-bottom: 1px solid var(--border-line);
-      padding-bottom: 8px;
-      margin-bottom: 12px;
-      font-size: 15px;
-    }
-
-    .siswa-row { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      padding: 10px 12px; 
-      background: var(--header-bg);
-      border-radius: 12px;
-      margin-bottom: 8px;
-      transition: all 0.2s ease;
-      border: 1px solid var(--border-line);
-    }
-
-    .nama-siswa-wrapper {
-      flex: 1;
-      padding-right: 8px;
-      overflow: hidden;
-    }
-
-    .nama-siswa-text { 
-      font-size: 13.5px; 
-      font-weight: 500;
-      color: var(--text-color);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: block;
-    }
-
-    .status-group { 
-      display: flex;
-      gap: 4px; 
-      flex-shrink: 0;
-    }
-
-    .status-group input[type="radio"] { display: none; }
-
-    .status-group label {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
-      margin: 0;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-      transition: all 0.2s ease;
-      border: 2px solid transparent;
-      color: var(--text-sub); 
-      background-color: var(--bg-color); 
-    }
-
-    .status-group input[value="Hadir"]:checked + label {
-      background-color: rgba(46, 204, 113, 0.15);
-      color: var(--color-h);
-      border-color: var(--color-h);
-    }
-
-    .status-group input[value="Izin"]:checked + label {
-      background-color: rgba(241, 196, 15, 0.15);
-      color: var(--color-i);
-      border-color: var(--color-i);
-    }
-
-    .status-group input[value="Sakit"]:checked + label {
-      background-color: rgba(52, 152, 219, 0.15);
-      color: var(--color-s);
-      border-color: var(--color-s);
-    }
-
-    .status-group input[value="Alpha"]:checked + label {
-      background-color: rgba(231, 76, 60, 0.15);
-      color: var(--color-a);
-      border-color: var(--color-a);
-    }
-
-    .btn-simpan { 
-      width: 100%; 
-      padding: 12px; 
-      margin-top: 20px; 
-      border-radius: 12px; 
-      background: var(--primary-color);
-      color: white; 
-      font-weight: 600; 
-      font-size: 14.5px;
-      font-family: 'Poppins', sans-serif;
-      border: none; 
-      cursor: pointer; 
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(2, 132, 199, 0.25);
-    }
-
-    .btn-simpan:hover {
-      opacity: 0.9;
-    }
-
-    #loading { 
-      display: none; 
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(5px);
-      z-index: 9999;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      color: #fff;
-    }
-    
-    .spinner {
-      border: 3px solid rgba(255, 255, 255, 0.2);
-      border-left-color: var(--primary-color);
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      animation: spin 0.8s linear infinite;
-      margin-bottom: 10px;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* MODAL PASSWORD */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(6px);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-
-    .modal-box {
-      background: var(--header-bg);
-      padding: 24px;
-      border-radius: 18px;
-      width: 100%;
-      max-width: 340px;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-      text-align: center;
-      border: 1px solid var(--border-line);
-    }
-
-    .modal-box h3 { margin: 0 0 6px; font-size: 17px; color: var(--text-color); }
-    .modal-box p { font-size: 12.5px; color: var(--text-sub); margin-bottom: 14px; }
-
-    .input-password {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border-line);
-      background: var(--bg-color);
-      color: var(--text-color);
-      font-size: 14px;
-      outline: none;
-      margin-bottom: 14px;
-    }
-
-    .modal-actions { display: flex; gap: 8px; }
-
-    .btn-modal {
-      flex: 1;
-      padding: 9px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 600;
-      font-size: 13.5px;
-      cursor: pointer;
-    }
-
-    .btn-cancel { background: var(--bg-color); color: var(--text-sub); }
-    .btn-submit { background: var(--primary-color); color: white; }
-  </style>
-</head>
-<body>
-
-<!-- HEADER NAVBAR -->
-<header>
-  <div class="navbar-container">
-    <!-- LOGO ICON PORTAL -->
-    <a href="#" class="logo-icon" title="Home" onclick="goHome(); return false;">
-      <svg viewBox="0 0 24 24">
-        <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
-        <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-        <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
-        <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
-      </svg>
-    </a>
-
-    <div class="nav-right">
-      <!-- NAV LINKS -->
-      <ul class="nav-links" id="navLinks">
-        <li><a href="https://itsmuu.github.io/">Home</a></li>
-        <li><a href="./perkembanganfisik/">Perkembangan Fisik</a></li>
-        
-        <!-- DROPDOWN ABSENSI (AKTIF SECARA DEFAULT) -->
-        <li class="nav-dropdown" id="absensiDropdown">
-          <a href="#" class="active" onclick="toggleSubMenu(event)">
-            Absensi <i class="nav-arrow"></i>
-          </a>
-          <ul class="nav-dropdown-menu">
-            <li><a href="#" onclick="goHome(); return false;">Input Absensi</a></li>
-            <li><a href="./rekap.html">Lihat Absensi</a></li>
-          </ul>
-        </li>
-
-        <li><a href="./datarombel/">Data Rombel</a></li>
-        <li><a href="./ketuntasan/">Ketuntasan</a></li>
-      </ul>
-      
-      <!-- SAKELAR TEMA (LIGHT/DARK) -->
-      <button class="theme-toggle-btn" id="theme-toggle" title="Ubah Tema">
-        <svg id="moon-icon" viewBox="0 0 24 24">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
-        <svg id="sun-icon" viewBox="0 0 24 24" style="display: none;">
-          <circle cx="12" cy="12" r="5"></circle>
-          <line x1="12" y1="1" x2="12" y2="3"></line>
-          <line x1="12" y1="21" x2="12" y2="23"></line>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-          <line x1="1" y1="12" x2="3" y2="12"></line>
-          <line x1="21" y1="12" x2="23" y2="12"></line>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-        </svg>
-      </button>
-
-      <!-- TOMBOL HAMBURGER MOBILE -->
-      <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu()">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-    </div>
-  </div>
-</header>
-
-<!-- MODAL PASSWORD LAPORAN -->
-<div class="modal-overlay" id="passModal">
-  <div class="modal-box">
-    <h3>Akses Laporan</h3>
-    <p>Masukkan kata sandi spreadsheet laporan.</p>
-    <input type="password" id="passInput" class="input-password" placeholder="Kata Sandi..." onkeyup="if(event.key==='Enter') verifyPassword()">
-    <div class="modal-actions">
-      <button class="btn-modal btn-cancel" onclick="closePassModal()">Batal</button>
-      <button class="btn-modal btn-submit" onclick="verifyPassword()">Buka</button>
-    </div>
-  </div>
-</div>
-
-<div id="loading">
-  <div class="spinner"></div>
-  <div style="font-weight:600; font-size: 13px;">Memproses...</div>
-</div>
-
-<div class="container">
-  <div class="header-app">
-    <h2>Hadirmu</h2>
-    <p>Absensi Online TKJ</p>
-  </div>
-  
-  <div class="form-group">
-    <label>Pilih Rombongan Belajar</label>
-    
-    <!-- CUSTOM DROPDOWN -->
-    <div class="custom-select-wrapper" id="kelasWrapper">
-      <div class="custom-select-trigger" onclick="toggleDropdown()">
-        <span id="selectedKelasText">-- Memuat Kelas... --</span>
-        <div class="arrow"></div>
-      </div>
-      <div class="custom-options" id="customOptions"></div>
-    </div>
-    <input type="hidden" id="selectedKelasValue" value="">
-  </div>
-
-  <div id="daftarSiswa"></div>
-</div>
-
-<script>
-  // =========================================================
-  const API_URL = "https://script.google.com/macros/s/AKfycbwLY30Nz3rqBbka4bpzhIPMlIWRCh5sMSgKl-uSrtGMA6jh15oahR4uJnNduWQogBz4kQ/exec";
-  const SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1foU4hKjM2QgOqsJbhEZYrjciVamT7LP8-YdUjPeVPfs/edit?gid=1941866150#gid=1941866150";
-  const PASS_LAPORAN = "admin123";
-  // =========================================================
-
-  // Cache lokal untuk menyimpan data kelas + siswa agar tidak memanggil API berulang kali
-  let cacheDataMaster = {}; 
-
-  // --- LOGIK TOGGLE TEMA (DARK / LIGHT MODE) ---
-  const toggleBtn = document.getElementById('theme-toggle');
-  const moonIcon = document.getElementById('moon-icon');
-  const sunIcon = document.getElementById('sun-icon');
-
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme) {
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    if (savedTheme === 'dark') {
-      moonIcon.style.display = 'none';
-      sunIcon.style.display = 'block';
-    }
-  }
-
-  toggleBtn.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    let newTheme = currentTheme !== 'dark' ? 'dark' : 'light';
-    
-    moonIcon.style.display = newTheme === 'dark' ? 'none' : 'block';
-    sunIcon.style.display = newTheme === 'dark' ? 'block' : 'none';
-
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-  });
-
-  // --- LOGIK MOBILE MENU ---
-  function toggleMobileMenu() {
-    document.getElementById('hamburgerBtn').classList.toggle('active');
-    document.getElementById('navLinks').classList.toggle('open');
-  }
-
-  function closeMobileMenu() {
-    const hamburgerBtn = document.getElementById('hamburgerBtn');
-    const navLinks = document.getElementById('navLinks');
-    if (hamburgerBtn) hamburgerBtn.classList.remove('active');
-    if (navLinks) navLinks.classList.remove('open');
-    document.getElementById('absensiDropdown').classList.remove('active');
-  }
-
-  function toggleSubMenu(e) {
-    if (window.innerWidth <= 768) {
-      e.preventDefault();
-      document.getElementById('absensiDropdown').classList.toggle('active');
-    }
-  }
-
-  const loader = document.getElementById('loading');
-  function showLoader(show) {
-    loader.style.display = show ? 'flex' : 'none';
-  }
-
-  function goHome() {
-    closeMobileMenu();
-    document.getElementById('selectedKelasText').innerText = '-- Pilih Kelas --';
-    document.getElementById('selectedKelasValue').value = '';
-    document.getElementById('daftarSiswa').innerHTML = '';
-    document.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
-  }
-
-  function openPassModal() {
-    closeMobileMenu();
-    document.getElementById('passInput').value = '';
-    document.getElementById('passModal').style.display = 'flex';
-    document.getElementById('passInput').focus();
-  }
-
-  function closePassModal() {
-    document.getElementById('passModal').style.display = 'none';
-  }
-
-  function verifyPassword() {
-    const inputPass = document.getElementById('passInput').value;
-    if (inputPass === PASS_LAPORAN) {
-      closePassModal();
-      window.open(SPREADSHEET_URL, '_blank');
-    } else {
-      alert("❌ Kata sandi salah!");
-      document.getElementById('passInput').value = '';
-      document.getElementById('passInput').focus();
-    }
-  }
-
-  function toggleDropdown() {
-    document.getElementById('kelasWrapper').classList.toggle('open');
-  }
-
-  window.addEventListener('click', function(e) {
-    const kelasWrapper = document.getElementById('kelasWrapper');
-    if (kelasWrapper && !kelasWrapper.contains(e.target)) {
-      kelasWrapper.classList.remove('open');
-    }
-
-    const navbarContainer = document.querySelector('.navbar-container');
-    if (navbarContainer && !navbarContainer.contains(e.target)) {
-      closeMobileMenu();
-    }
-  });
-
-  // --- LOAD DATA AWAL (PAKAI HTTP GET AGAR CEPAT + AMBIL SEMUA DATA KELAS SEKALIGUS) ---
-  window.onload = function() {
-    showLoader(true);
-    
-    // Menggunakan GET dengan query parameter 'action=getAllMasterData'
-    fetch(`${API_URL}?action=getAllMasterData`, { method: "GET" })
-    .then(res => res.json())
-    .then(res => {
-      showLoader(false);
-      const optionsContainer = document.getElementById('customOptions');
-      const triggerText = document.getElementById('selectedKelasText');
-      optionsContainer.innerHTML = '';
-
-      if (res.status === "success" && res.data) {
-        cacheDataMaster = res.data; // Simpan data di memory browser
-        const listKelas = Object.keys(res.data);
-
-        if (listKelas.length > 0) {
-          triggerText.innerText = "-- Pilih Kelas --";
-          listKelas.forEach(k => {
-            const option = document.createElement('div');
-            option.className = 'custom-option';
-            option.innerText = k;
-            option.onclick = function() { selectKelas(k, this); };
-            optionsContainer.appendChild(option);
-          });
-        } else {
-          triggerText.innerText = "Tidak ada kelas ditemukan";
-        }
-      } else {
-        triggerText.innerText = "Gagal memuat data";
-      }
-    })
-    .catch(err => {
-      showLoader(false);
-      document.getElementById('selectedKelasText').innerText = "Gagal memuat kelas";
-      alert("Gagal terhubung ke API. Cek koneksi atau URL Apps Script.");
-    });
-  };
-
-  function selectKelas(kelas, element) {
-    document.getElementById('selectedKelasText').innerText = kelas;
-    document.getElementById('selectedKelasValue').value = kelas;
-    document.getElementById('kelasWrapper').classList.remove('open');
-
-    document.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
-    element.classList.add('selected');
-
-    loadSiswaInstant(kelas);
-  }
-
-  // Menampilkan siswa TANPA PANGGIL API LAGI (INSTAN)
-  function loadSiswaInstant(kelas) {
-    let container = document.getElementById('daftarSiswa');
-    container.innerHTML = '';
-
-    const daftarSiswa = cacheDataMaster[kelas] || [];
-
-    if (daftarSiswa.length === 0) {
-      container.innerHTML = '<p style="text-align:center; color:var(--text-sub); font-size:13px; margin-top:20px;">Tidak ada siswa di kelas ini.</p>';
-      return;
-    }
-
-    let html = '<div class="daftar-header">Daftar Kehadiran</div>';
-    daftarSiswa.forEach((nama, index) => {
-      html += `
-        <div class="siswa-row">
-          <div class="nama-siswa-wrapper">
-            <span class="nama-siswa-text">${nama}</span>
-          </div>
-          <div class="status-group">
-            <input type="radio" id="h_${index}" name="status_${index}" value="Hadir" checked>
-            <label for="h_${index}" title="Hadir">H</label>
-            
-            <input type="radio" id="s_${index}" name="status_${index}" value="Sakit">
-            <label for="s_${index}" title="Sakit">S</label>
-            
-            <input type="radio" id="i_${index}" name="status_${index}" value="Izin">
-            <label for="i_${index}" title="Izin">I</label>
-            
-            <input type="radio" id="a_${index}" name="status_${index}" value="Alpha">
-            <label for="a_${index}" title="Alpha">A</label>
-          </div>
-          <input type="hidden" class="nama-siswa" value="${nama}">
-        </div>
-      `;
-    });
-    html += '<button class="btn-simpan" onclick="kirimAbsensi()">Simpan Absensi Hari Ini</button>';
-    container.innerHTML = html;
-  }
-
-  function kirimAbsensi() {
-    let kelas = document.getElementById('selectedKelasValue').value;
-    if (!kelas) {
-      alert("Pilih kelas terlebih dahulu!");
-      return;
-    }
-
-    if (!confirm("Apakah Anda yakin data absensi sudah benar?")) return;
-
-    let rows = document.querySelectorAll('.siswa-row');
-    let dataAbsensi = [];
-
-    rows.forEach((row, index) => {
-      let nama = row.querySelector('.nama-siswa').value;
-      let status = row.querySelector(`input[name="status_${index}"]:checked`).value;
-      dataAbsensi.push({ nama: nama, status: status });
-    });
-
-    showLoader(true);
-
-    fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({ action: "simpanAbsensi", kelas: kelas, dataAbsensi: dataAbsensi })
-    })
-    .then(res => res.json())
-    .then(res => {
-      showLoader(false);
-      if (res.status === "success") {
-        alert("✔️ " + res.message);
-        goHome();
-      } else {
-        alert("❌ Gagal menyimpan: " + res.message);
-      }
-    })
-    .catch(err => {
-      showLoader(false);
-      alert("❌ Terjadi kesalahan jaringan.");
-    });
-  }
-</script>
-
-</body>
-</html>
+class MyNavbar extends HTMLElement {
+    connectedCallback() {
+        this.innerHTML = `
+        <style>
+            /* Target langsung tag <my-navbar> agar sticky bekerja */
+            my-navbar {
+                display: block;
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+            }
+
+            .navbar-container {
+                position: relative;
+                background-color: #ffffff;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 28px;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            .navbar-brand {
+                display: flex;
+                align-items: center;
+                text-decoration: none;
+            }
+
+            .navbar-links {
+                display: flex;
+                gap: 24px;
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            .navbar-links a {
+                text-decoration: none;
+                color: #4a5568;
+                font-weight: 600;
+                font-size: 15px;
+                transition: color 0.2s ease;
+            }
+
+            .navbar-links a:hover {
+                color: #007bff;
+            }
+
+            /* --- Dropdown Styling --- */
+            .dropdown {
+                position: relative;
+            }
+
+            .dropdown-toggle {
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .dropdown-menu {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background-color: #ffffff;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                border-radius: 6px;
+                list-style: none;
+                padding: 8px 0;
+                margin: 8px 0 0 0;
+                min-width: 160px;
+                display: none;
+                z-index: 1001;
+            }
+
+            .dropdown-menu li a {
+                padding: 8px 16px;
+                display: block;
+                font-weight: 500;
+                white-space: nowrap;
+            }
+
+            .dropdown-menu li a:hover {
+                background-color: #f7fafc;
+            }
+
+            /* Panah kecil pada dropdown */
+            .arrow {
+                font-size: 10px;
+                transition: transform 0.2s ease;
+            }
+
+            /* Hover untuk Desktop */
+            @media (min-width: 769px) {
+                .dropdown:hover .dropdown-menu {
+                    display: block;
+                }
+
+                .dropdown:hover .arrow {
+                    transform: rotate(180deg);
+                }
+            }
+
+            /* --- Tombol Hamburger (Ikon Garis 3) --- */
+            .hamburger-btn {
+                display: none;
+                flex-direction: column;
+                justify-content: space-between;
+                width: 24px;
+                height: 18px;
+                background: transparent;
+                border: none;
+                cursor: pointer;
+                padding: 0;
+            }
+
+            .hamburger-btn span {
+                width: 100%;
+                height: 2.5px;
+                background-color: #4a5568;
+                border-radius: 2px;
+                transition: transform 0.3s ease, opacity 0.3s ease;
+            }
+
+            /* Animasi Berubah Menjadi X (Silang) */
+            .hamburger-btn.open span:nth-child(1) {
+                transform: translateY(7.7px) rotate(45deg);
+            }
+
+            .hamburger-btn.open span:nth-child(2) {
+                opacity: 0;
+            }
+
+            .hamburger-btn.open span:nth-child(3) {
+                transform: translateY(-7.7px) rotate(-45deg);
+            }
+
+            /* --- Tampilan untuk layar HP / Mobile --- */
+            @media (max-width: 768px) {
+                .hamburger-btn {
+                    display: flex;
+                }
+
+                .navbar-links {
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+                    width: 100%;
+                    background-color: #ffffff;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 16px;
+                    padding: 20px 0;
+                    box-shadow: 0 8px 10px rgba(0, 0, 0, 0.05);
+                    border-top: 1px solid #f0f0f0;
+                    display: none;
+                }
+
+                .navbar-links.active {
+                    display: flex;
+                }
+
+                /* Menyesuaikan Dropdown di Mobile */
+                .dropdown {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    width: 100%;
+                }
+
+                .dropdown-menu {
+                    position: static;
+                    box-shadow: none;
+                    background-color: #f8fafc;
+                    width: 100%;
+                    text-align: center;
+                    margin-top: 8px;
+                    border-radius: 0;
+                }
+
+                .dropdown.open .dropdown-menu {
+                    display: block;
+                }
+
+                .dropdown.open .arrow {
+                    transform: rotate(180deg);
+                }
+            }
+        </style>
+
+        <nav class="navbar-container">
+            <a href="index.html" class="navbar-brand">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="#007bff">
+                    <rect x="3" y="3" width="8" height="8" rx="2.5"/>
+                    <rect x="13" y="3" width="8" height="8" rx="2.5"/>
+                    <rect x="3" y="13" width="8" height="8" rx="2.5"/>
+                    <rect x="13" y="13" width="8" height="8" rx="2.5"/>
+                </svg>
+            </a>
+
+            <button class="hamburger-btn" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <ul class="navbar-links">
+                <li><a href="index.html">Home</a></li>
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">
+                        Teori <span class="arrow">▼</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="classfull.html">Classfull IP</a></li>
+                        <li><a href="classless.html">Classless IP</a></li>
+                    </ul>
+                </li>
+
+                <li><a href="subnetting.html">Subnetting</a></li>
+            </ul>
+        </nav>
+        `;
+
+        // Interaktivitas Klik Hamburger
+        const hamburger = this.querySelector('.hamburger-btn');
+        const navLinks = this.querySelector('.navbar-links');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('open');
+            navLinks.classList.toggle('active');
+        });
+
+        // Interaktivitas Klik Dropdown (Khusus Mobile / Touch Screen)
+        const dropdownToggle = this.querySelector('.dropdown-toggle');
+        const dropdown = this.querySelector('.dropdown');
+
+        dropdownToggle.addEventListener('click', (e) => {
+            e.preventDefault(); // Mencegah reload/jump ke atas
+            dropdown.classList.toggle('open');
+        });
+    }
+}
+
+customElements.define('my-navbar',
