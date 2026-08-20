@@ -14,21 +14,18 @@
       --text-muted: #64748b;
       --border: #e2e8f0;
       
-      /* Header & Navbar Specific Variables */
       --header-bg: #ffffff;
       --border-line: #f1f5f9;
       --text-nav: #475569;
       --logo-bg: #f0f9ff;
       --logo-border: #e0f2fe;
 
-      /* Status Colors */
       --color-hadir: #166534; --bg-hadir: #dcfce7;
       --color-sakit: #854d0e; --bg-sakit: #fef9c3;
       --color-izin:  #075985; --bg-izin:  #e0f2fe;
       --color-alpa:  #991b1b; --bg-alpa:  #fee2e2;
     }
 
-    /* Dark Mode Variables */
     [data-theme="dark"] {
       --primary: #38bdf8;
       --primary-hover: #0284c7;
@@ -53,9 +50,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     body { background-color: var(--bg-page); color: var(--text-main); line-height: 1.5; min-height: 100vh; transition: background-color 0.3s, color 0.3s; }
 
-    /* =========================================================
-       NAVBAR STYLES
-       ========================================================= */
     header {
       width: 100%;
       background-color: var(--header-bg);
@@ -102,11 +96,7 @@
       stroke-linejoin: round;
     }
 
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 28px;
-    }
+    .nav-right { display: flex; align-items: center; gap: 28px; }
 
     .nav-links {
       display: flex;
@@ -126,13 +116,8 @@
       gap: 5px;
     }
 
-    .nav-links a:hover, .nav-links a.active {
-      color: var(--primary);
-      font-weight: 600;
-    }
-
+    .nav-links a:hover, .nav-links a.active { color: var(--primary); font-weight: 600; }
     .nav-links a.active svg { stroke: var(--primary); }
-
     .nav-dropdown { position: relative; }
 
     .nav-dropdown-menu {
@@ -153,21 +138,9 @@
       z-index: 10;
     }
 
-    .nav-dropdown-menu li a {
-      display: block;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-
+    .nav-dropdown-menu li a { display: block; padding: 8px 12px; border-radius: 6px; font-size: 0.9rem; font-weight: 500; }
     .nav-dropdown-menu li a:hover { background: rgba(2, 132, 199, 0.08); }
-
-    .nav-dropdown:hover .nav-dropdown-menu {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
+    .nav-dropdown:hover .nav-dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
 
     .theme-toggle-btn {
       background: transparent;
@@ -183,178 +156,60 @@
       transition: all 0.2s;
     }
 
-    .theme-toggle-btn:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-    }
-
-    .theme-toggle-btn svg {
-      width: 18px;
-      height: 18px;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
+    .theme-toggle-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .theme-toggle-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
     .hamburger-btn {
-      display: none;
-      flex-direction: column;
-      justify-content: space-between;
-      width: 22px;
-      height: 16px;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      padding: 0;
+      display: none; flex-direction: column; justify-content: space-between;
+      width: 22px; height: 16px; background: transparent; border: none; cursor: pointer; padding: 0;
     }
 
-    .hamburger-btn span {
-      width: 100%;
-      height: 2px;
-      background-color: var(--text-nav);
-      transition: all 0.3s ease;
-      border-radius: 2px;
-    }
-
+    .hamburger-btn span { width: 100%; height: 2px; background-color: var(--text-nav); transition: all 0.3s ease; border-radius: 2px; }
     .hamburger-btn.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
     .hamburger-btn.active span:nth-child(2) { opacity: 0; }
     .hamburger-btn.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
     @media (max-width: 780px) {
       .hamburger-btn { display: flex; }
-
       .nav-links {
-        position: absolute;
-        top: 65px;
-        left: 0;
-        right: 0;
-        background: var(--header-bg);
-        border-bottom: 1px solid var(--border-line);
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 16px 20px;
-        gap: 14px;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(-10px);
-        transition: all 0.3s ease;
-        box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+        position: absolute; top: 65px; left: 0; right: 0; background: var(--header-bg);
+        border-bottom: 1px solid var(--border-line); flex-direction: column; align-items: flex-start;
+        padding: 16px 20px; gap: 14px; opacity: 0; visibility: hidden; transform: translateY(-10px);
+        transition: all 0.3s ease; box-shadow: 0 10px 15px rgba(0,0,0,0.05);
       }
-
-      .nav-links.open {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-      }
-
-      .nav-dropdown-menu {
-        position: static;
-        opacity: 1;
-        visibility: visible;
-        transform: none;
-        box-shadow: none;
-        border: none;
-        padding-left: 12px;
-        display: none;
-      }
-
+      .nav-links.open { opacity: 1; visibility: visible; transform: translateY(0); }
+      .nav-dropdown-menu { position: static; opacity: 1; visibility: visible; transform: none; box-shadow: none; border: none; padding-left: 12px; display: none; }
       .nav-dropdown.active .nav-dropdown-menu { display: block; }
     }
 
-    /* =========================================================
-       MAIN CONTENT STYLES
-       ========================================================= */
-    .main-container {
-      max-width: 1200px;
-      margin: 0 auto 40px auto;
-      padding: 0 16px;
-    }
+    .main-container { max-width: 1200px; margin: 0 auto 40px auto; padding: 0 16px; }
+    .card { background: var(--card-bg); border-radius: 18px; padding: 32px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02); border: 1px solid var(--border); }
+    .card-title { font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px; }
 
-    .card {
-      background: var(--card-bg);
-      border-radius: 18px;
-      padding: 32px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-      border: 1px solid var(--border);
-    }
+    .filter-action-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .filter-controls, .action-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 
-    .card-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 6px;
+    select, input[type="date"], input[type="month"] {
+      padding: 10px 14px; font-size: 0.9rem; border: 1px solid var(--border);
+      border-radius: 8px; outline: none; background: var(--card-bg); color: var(--text-main);
+      transition: border-color 0.2s; cursor: pointer;
     }
-
-    .filter-action-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .filter-controls, .action-controls {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-    }
-
-    select {
-      padding: 10px 14px;
-      font-size: 0.9rem;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      outline: none;
-      background: var(--card-bg);
-      color: var(--text-main);
-      transition: border-color 0.2s;
-      cursor: pointer;
-    }
-    select:focus { border-color: var(--primary); }
-
-    #selectRombel { min-width: 200px; }
-    #selectBulan { min-width: 160px; }
+    select:focus, input:focus { border-color: var(--primary); }
+    #selectRombel { min-width: 180px; }
 
     .btn-blue {
-      background-color: var(--primary);
-      color: #ffffff;
-      border: none;
-      padding: 10px 18px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.2s, transform 0.1s;
-      white-space: nowrap;
+      background-color: var(--primary); color: #ffffff; border: none; padding: 10px 18px;
+      font-size: 0.9rem; font-weight: 600; border-radius: 8px; cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s; white-space: nowrap;
     }
     .btn-blue:hover { background-color: var(--primary-hover); }
     .btn-blue:active { transform: scale(0.98); }
     .btn-blue:disabled { background-color: #94a3b8; cursor: not-allowed; }
 
-    .info-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 24px;
-      margin-bottom: 12px;
-    }
-    .info-count {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
+    .info-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; margin-bottom: 12px; }
+    .info-count { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; }
 
-    .table-container {
-      overflow-x: auto;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      margin-top: 12px;
-    }
-
+    .table-container { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); margin-top: 12px; }
     table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
     th, td { padding: 12px 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
     th { background-color: rgba(0, 0, 0, 0.02); font-weight: 600; text-align: center; color: var(--text-main); }
@@ -380,7 +235,6 @@
     .btn-detail:hover { background-color: rgba(0, 0, 0, 0.2); }
     .btn-detail svg { width: 13px; height: 13px; fill: currentColor; }
 
-    /* Modal Detail Pop-up */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(15, 23, 42, 0.5); display: flex; align-items: center;
@@ -389,10 +243,9 @@
     }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
     .modal-box {
-      background: var(--card-bg); width: 90%; max-width: 400px; border-radius: 12px;
+      background: var(--card-bg); width: 90%; max-width: 420px; border-radius: 12px;
       padding: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
-      transform: translateY(10px); transition: transform 0.2s ease;
-      border: 1px solid var(--border);
+      transform: translateY(10px); transition: transform 0.2s ease; border: 1px solid var(--border);
     }
     .modal-overlay.active .modal-box { transform: translateY(0); }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
@@ -407,12 +260,8 @@
     }
 
     .state-box { text-align: center; padding: 30px 20px; color: var(--text-muted); }
-
     .fade-in { animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
     .loading-container { display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
     .spinner-ring {
@@ -426,19 +275,11 @@
     .loading-text { font-weight: 600; font-size: 0.95rem; color: var(--text-main); margin-bottom: 4px; }
     .loading-subtext { font-size: 0.825rem; color: var(--text-muted); margin-bottom: 20px; }
 
-    .skeleton-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    .skeleton-row td { padding: 12px 16px; border-bottom: 1px solid var(--border); }
-    .skeleton-box {
-      height: 16px; background: linear-gradient(90deg, var(--border) 25%, rgba(226, 232, 240, 0.5) 50%, var(--border) 75%);
-      background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; display: inline-block;
-    }
-    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
     .hidden { display: none !important; }
 
     @media print {
       body { background: #fff; color: #000; }
-      header, .filter-action-row, .btn-detail { display: none !important; }
+      header, .filter-action-row, .btn-detail, .modal-overlay { display: none !important; }
       .card { box-shadow: none; border: none; padding: 0; background: none; }
       .main-container { max-width: 100%; margin: 0; padding: 0; }
       th, td { border: 1px solid #000 !important; color: #000 !important; }
@@ -507,12 +348,10 @@
     </div>
   </header>
 
-  <!-- Main Container -->
   <div class="main-container">
     <div class="card">
       <h2 class="card-title">Rekap Absensi</h2>
 
-      <!-- Filter and Action Buttons Row -->
       <div class="filter-action-row">
         <div class="filter-controls">
           <!-- DROPDOWN PILIH KELAS -->
@@ -520,22 +359,17 @@
             <option value="">-- Memuat daftar kelas... --</option>
           </select>
           
-          <!-- DROPDOWN PILIH BULAN -->
-          <select id="selectBulan">
-            <option value="">-- Semua Bulan --</option>
-            <option value="1">Januari</option>
-            <option value="2">Februari</option>
-            <option value="3">Maret</option>
-            <option value="4">April</option>
-            <option value="5">Mei</option>
-            <option value="6">Juni</option>
-            <option value="7">Juli</option>
-            <option value="8">Agustus</option>
-            <option value="9">September</option>
-            <option value="10">Oktober</option>
-            <option value="11">November</option>
-            <option value="12">Desember</option>
+          <!-- DROPDOWN TIPE FILTER (Harian / Bulanan) -->
+          <select id="selectModeFilter" onchange="toggleFilterMode()">
+            <option value="hari">Filter Hari</option>
+            <option value="bulan">Filter Bulan</option>
           </select>
+
+          <!-- INPUT HARI -->
+          <input type="date" id="inputHari" title="Pilih Hari Absensi">
+
+          <!-- INPUT BULAN -->
+          <input type="month" id="inputBulan" class="hidden" title="Pilih Bulan Absensi">
 
           <button class="btn-blue" id="btnFilter" onclick="applyFilter()">Terapkan Filter</button>
         </div>
@@ -555,48 +389,15 @@
             <div class="loading-subtext">Mengambil data kelas dari server</div>
           </div>
         </div>
-        <p id="promptRombelReady" class="hidden">Silakan pilih kelas terlebih dahulu untuk melihat rekap absensi.</p>
+        <p id="promptRombelReady" class="hidden">Silakan pilih kelas dan filter waktu untuk melihat kehadiran.</p>
       </div>
 
-      <!-- State 2: Loading Data Detail -->
+      <!-- State 2: Loading Data -->
       <div id="stateLoading" class="state-box hidden">
         <div class="loading-container">
           <div class="spinner-ring"></div>
           <div class="loading-text">Menghubungkan ke Google Sheets...</div>
-          <div class="loading-subtext">Mengambil data kehadiran & tanggal rekap terbaru</div>
-        </div>
-
-        <div class="table-container" style="border: 1px dashed var(--border);">
-          <table class="skeleton-table">
-            <thead>
-              <tr>
-                <th style="width: 50px;">No</th>
-                <th class="text-left">Nama Siswa</th>
-                <th style="width: 100px;">Hadir</th>
-                <th style="width: 100px;">Sakit</th>
-                <th style="width: 100px;">Izin</th>
-                <th style="width: 100px;">Alpa</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="skeleton-row">
-                <td class="text-center"><span class="skeleton-box" style="width: 15px;"></span></td>
-                <td><span class="skeleton-box" style="width: 70%;"></span></td>
-                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
-                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
-                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
-                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
-              </tr>
-              <tr class="skeleton-row">
-                <td class="text-center"><span class="skeleton-box" style="width: 15px;"></span></td>
-                <td><span class="skeleton-box" style="width: 55%;"></span></td>
-                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
-                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
-                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
-                <td class="text-center"><span class="skeleton-box" style="width: 35px;"></span></td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="loading-subtext">Mengambil data kehadiran terbaru</div>
         </div>
       </div>
 
@@ -637,7 +438,7 @@
     <div class="modal-box">
       <div class="modal-header">
         <h3 id="modalTitle">Detail Absensi</h3>
-        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <button class="modal-close" onclick="closeModal('detailModal')">&times;</button>
       </div>
       <div class="modal-body">
         <p id="modalSubTitle" style="color: var(--text-muted); font-size:0.85rem;"></p>
@@ -647,7 +448,6 @@
   </div>
 
   <script>
-    // Theme Switcher & Menu Interactions
     const toggleBtn = document.getElementById('theme-toggle');
     const moonIcon = document.getElementById('moon-icon');
     const sunIcon = document.getElementById('sun-icon');
@@ -664,10 +464,8 @@
     toggleBtn.addEventListener('click', () => {
       const currentTheme = document.documentElement.getAttribute('data-theme');
       let newTheme = currentTheme !== 'dark' ? 'dark' : 'light';
-      
       moonIcon.style.display = newTheme === 'dark' ? 'none' : 'block';
       sunIcon.style.display = newTheme === 'dark' ? 'block' : 'none';
-
       document.documentElement.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
     });
@@ -684,21 +482,11 @@
       }
     }
 
-    window.addEventListener('click', function(e) {
-      const navbarContainer = document.querySelector('.navbar-container');
-      if (navbarContainer && !navbarContainer.contains(e.target)) {
-        document.getElementById('hamburgerBtn').classList.remove('active');
-        document.getElementById('navLinks').classList.remove('open');
-      }
-    });
-
-    // Daftar Nama Bulan
     const MONTH_NAMES = [
       "", "Januari", "Februari", "Maret", "April", "Mei", "Juni",
       "Juli", "Agustus", "September", "Oktober", "November", "Desember"
     ];
 
-    // Google Sheets API Integration
     const API_URL = "https://script.google.com/macros/s/AKfycbw4mY3JOE1I-vzsQQhpvuTm9_r6wEPiSIPcuC5LWfWbjjnu21LpFtx7tIuOAFzbTK5cEQ/exec";
 
     let rawAbsensiData = [];
@@ -707,11 +495,11 @@
     let selectedRombelGlobal = "";
 
     const selectRombel = document.getElementById('selectRombel');
-    const selectBulan = document.getElementById('selectBulan');
-    const promptRombelLoading = document.getElementById('promptRombelLoading');
-    const promptRombelReady = document.getElementById('promptRombelReady');
-    
+    const selectModeFilter = document.getElementById('selectModeFilter');
+    const inputHari = document.getElementById('inputHari');
+    const inputBulan = document.getElementById('inputBulan');
     const btnFilter = document.getElementById('btnFilter');
+    
     const statePrompt = document.getElementById('statePrompt');
     const stateLoading = document.getElementById('stateLoading');
     const stateEmpty = document.getElementById('stateEmpty');
@@ -720,11 +508,31 @@
     const totalSiswaText = document.getElementById('totalSiswaText');
     const infoKelas = document.getElementById('infoKelas');
 
-    document.addEventListener('DOMContentLoaded', initApp);
+    document.addEventListener('DOMContentLoaded', () => {
+      initApp();
+      // Set nilai awal input harian (hari ini) & input bulanan (bulan ini)
+      const now = new Date();
+      inputHari.value = now.toISOString().split('T')[0];
+      
+      const yearStr = now.getFullYear();
+      const monthStr = String(now.getMonth() + 1).padStart(2, '0');
+      inputBulan.value = `${yearStr}-${monthStr}`;
+    });
+
+    function toggleFilterMode() {
+      const mode = selectModeFilter.value;
+      if (mode === 'hari') {
+        inputHari.classList.remove('hidden');
+        inputBulan.classList.add('hidden');
+      } else {
+        inputHari.classList.add('hidden');
+        inputBulan.classList.remove('hidden');
+      }
+    }
 
     async function initApp() {
-      promptRombelLoading.classList.remove('hidden');
-      promptRombelReady.classList.add('hidden');
+      document.getElementById('promptRombelLoading').classList.remove('hidden');
+      document.getElementById('promptRombelReady').classList.add('hidden');
 
       try {
         const response = await fetch(`${API_URL}?action=getAllMasterData`);
@@ -738,8 +546,8 @@
       } catch (err) {
         selectRombel.innerHTML = '<option value="">Koneksi API bermasalah</option>';
       } finally {
-        promptRombelLoading.classList.add('hidden');
-        promptRombelReady.classList.remove('hidden');
+        document.getElementById('promptRombelLoading').classList.add('hidden');
+        document.getElementById('promptRombelReady').classList.remove('hidden');
       }
     }
 
@@ -757,7 +565,7 @@
     async function applyFilter() {
       const selectedRombel = selectRombel.value;
       if (!selectedRombel) {
-        showState('prompt');
+        alert("Pilih kelas terlebih dahulu!");
         return;
       }
 
@@ -793,46 +601,41 @@
       }
     }
 
-    // Fungsi mengecek apakah header tanggal cocok dengan bulan yang dipilih (1-12)
-    function isDateInMonth(headerText, monthNum) {
-      if (!monthNum || !headerText) return true;
-
-      const targetMonth = parseInt(monthNum); // 1 sampai 12
-      const targetMonthName = MONTH_NAMES[targetMonth].toLowerCase();
-
-      const cleanText = headerText.toString().toLowerCase();
-
-      // 1. Cek jika teks header mengandung nama bulan (misal: "14 Agustus 2026")
-      if (cleanText.includes(targetMonthName)) {
-        return true;
+    // Pengecekan Tanggal Hari Spesifik
+    function isSameDate(headerText, targetDateStr) {
+      if (!targetDateStr || !headerText) return false;
+      const parsedHeader = new Date(headerText);
+      if (!isNaN(parsedHeader.getTime())) {
+        return parsedHeader.toISOString().split('T')[0] === targetDateStr;
       }
+      return headerText.toString().trim().includes(targetDateStr);
+    }
 
-      // 2. Parse menggunakan Date object (misal: "2026-08-14" atau "2026/08/14")
+    // Pengecekan Bulan Spesifik
+    function isSameMonth(headerText, targetMonthStr) { // targetMonthStr: "YYYY-MM"
+      if (!targetMonthStr || !headerText) return false;
+      const [year, month] = targetMonthStr.split('-');
+      const monthNum = parseInt(month);
+
       const parsedDate = new Date(headerText);
       if (!isNaN(parsedDate.getTime())) {
-        return (parsedDate.getMonth() + 1) === targetMonth;
+        return (parsedDate.getMonth() + 1) === monthNum && parsedDate.getFullYear() == year;
       }
-
-      // 3. Parse format tanggal numerik umum seperti DD-MM-YYYY atau DD/MM/YYYY
-      const parts = cleanText.match(/\d+/g);
-      if (parts && parts.length >= 2) {
-        // Asumsi format DD/MM/YYYY atau YYYY-MM-DD
-        let m = parts[0].length === 4 ? parseInt(parts[1]) : parseInt(parts[1]);
-        if (m === targetMonth) return true;
-      }
-
-      return false;
+      return headerText.toString().toLowerCase().includes(MONTH_NAMES[monthNum].toLowerCase());
     }
 
     function processAndRenderSummary() {
-      const selectedMonthVal = selectBulan.value; // nilainya '1' s/d '12' atau ''
+      const mode = selectModeFilter.value;
+      let labelFilter = '';
 
-      let labelFilterBulan = '';
-      if (selectedMonthVal && MONTH_NAMES[selectedMonthVal]) {
-        labelFilterBulan = ` (Bulan: ${MONTH_NAMES[selectedMonthVal]})`;
+      if (mode === 'hari') {
+        labelFilter = `(Hari: ${inputHari.value})`;
+      } else {
+        const [y, m] = inputBulan.value.split('-');
+        labelFilter = `(Bulan: ${MONTH_NAMES[parseInt(m)]} ${y})`;
       }
 
-      infoKelas.textContent = `Kelas: ${selectedRombelGlobal}${labelFilterBulan}`;
+      infoKelas.textContent = `Kelas: ${selectedRombelGlobal} ${labelFilter}`;
       totalSiswaText.textContent = `Total: ${currentRows.length} Siswa`;
 
       tableBody.innerHTML = '';
@@ -840,7 +643,6 @@
 
       currentRows.forEach((row, index) => {
         const namaSiswa = row[0];
-        
         let countHadir = 0;
         let datesSakit = [];
         let datesIzin = [];
@@ -848,52 +650,33 @@
 
         for (let col = 1; col < row.length; col++) {
           const rawStatus = (row[col] || '').toString().trim().toLowerCase();
-          
-          let headerText = currentHeaders[col];
-          if (!headerText && currentHeaders[col - 1]) {
-            headerText = currentHeaders[col - 1];
-          }
-          const tanggal = headerText || `Pertemuan ${col}`;
+          let headerText = currentHeaders[col] || currentHeaders[col - 1] || `Pertemuan ${col}`;
 
-          // Filter sesuai pilihan bulan dari Dropdown
-          if (selectedMonthVal && !isDateInMonth(tanggal, selectedMonthVal)) {
-            continue;
+          let isMatch = false;
+          if (mode === 'hari') {
+            isMatch = isSameDate(headerText, inputHari.value);
+          } else {
+            isMatch = isSameMonth(headerText, inputBulan.value);
           }
 
-          if (['hadir', 'h'].includes(rawStatus)) {
-            countHadir++;
-          } else if (['sakit', 's'].includes(rawStatus)) {
-            datesSakit.push(tanggal);
-          } else if (['izin', 'i'].includes(rawStatus)) {
-            datesIzin.push(tanggal);
-          } else if (['alpa', 'alpha', 'a'].includes(rawStatus)) {
-            datesAlpa.push(tanggal);
+          if (isMatch) {
+            if (['hadir', 'h'].includes(rawStatus)) countHadir++;
+            else if (['sakit', 's'].includes(rawStatus)) datesSakit.push(headerText);
+            else if (['izin', 'i'].includes(rawStatus)) datesIzin.push(headerText);
+            else if (['alpa', 'alpha', 'a'].includes(rawStatus)) datesAlpa.push(headerText);
           }
         }
 
-        rawAbsensiData.push({
-          nama: namaSiswa,
-          sakit: datesSakit,
-          izin: datesIzin,
-          alpa: datesAlpa
-        });
+        rawAbsensiData.push({ nama: namaSiswa, sakit: datesSakit, izin: datesIzin, alpa: datesAlpa });
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td class="text-center">${index + 1}</td>
           <td class="text-left" style="font-weight: 600;">${namaSiswa}</td>
-          <td class="text-center">
-            <span class="badge badge-hadir">${countHadir}</span>
-          </td>
-          <td class="text-center">
-            ${renderBadgeWithIcon(index, 'Sakit', datesSakit, 'badge-sakit')}
-          </td>
-          <td class="text-center">
-            ${renderBadgeWithIcon(index, 'Izin', datesIzin, 'badge-izin')}
-          </td>
-          <td class="text-center">
-            ${renderBadgeWithIcon(index, 'Alpa', datesAlpa, 'badge-alpa')}
-          </td>
+          <td class="text-center"><span class="badge badge-hadir">${countHadir}</span></td>
+          <td class="text-center">${renderBadgeWithIcon(index, 'Sakit', datesSakit, 'badge-sakit')}</td>
+          <td class="text-center">${renderBadgeWithIcon(index, 'Izin', datesIzin, 'badge-izin')}</td>
+          <td class="text-center">${renderBadgeWithIcon(index, 'Alpa', datesAlpa, 'badge-alpa')}</td>
         `;
         tableBody.appendChild(tr);
       });
@@ -901,19 +684,16 @@
 
     function renderBadgeWithIcon(siswaIndex, statusType, datesArray, badgeClass) {
       const count = datesArray.length;
-      if (count === 0) {
-        return `<span class="badge ${badgeClass}" style="opacity: 0.4;">0</span>`;
-      }
+      if (count === 0) return `<span class="badge ${badgeClass}" style="opacity: 0.4;">0</span>`;
 
-      const iconSVG = `
-        <button class="btn-detail" title="Lihat tanggal" onclick="openDetailModal(${siswaIndex}, '${statusType}')">
-          <svg viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-          </svg>
-        </button>
+      return `
+        <span class="badge ${badgeClass}">
+          ${count}
+          <button class="btn-detail" title="Lihat tanggal" onclick="openDetailModal(${siswaIndex}, '${statusType}')">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          </button>
+        </span>
       `;
-
-      return `<span class="badge ${badgeClass}">${count} ${iconSVG}</span>`;
     }
 
     function openDetailModal(siswaIndex, statusType) {
@@ -921,7 +701,6 @@
       if (!siswa) return;
 
       const dateList = siswa[statusType.toLowerCase()] || [];
-      
       document.getElementById('modalTitle').textContent = `Detail ${statusType}`;
       document.getElementById('modalSubTitle').textContent = `${siswa.nama} (${dateList.length} kali ${statusType})`;
 
@@ -941,8 +720,16 @@
       document.getElementById('detailModal').classList.add('active');
     }
 
-    function closeModal() {
-      document.getElementById('detailModal').classList.remove('active');
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    function printReport() {
+      if (rawAbsensiData.length === 0) {
+        alert("Pilih kelas dan terapkan filter terlebih dahulu.");
+        return;
+      }
+      window.print();
     }
 
     function exportCSV() {
@@ -972,14 +759,6 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    }
-
-    function printReport() {
-      if (rawAbsensiData.length === 0) {
-        alert("Pilih kelas dan terapkan filter terlebih dahulu.");
-        return;
-      }
-      window.print();
     }
 
     function showState(state) {
